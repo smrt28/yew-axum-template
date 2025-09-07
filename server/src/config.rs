@@ -1,3 +1,6 @@
+#![allow(unused_imports)]
+#![allow(dead_code)]
+
 use std::fs;
 use std::path::PathBuf;
 use serde::Deserialize;

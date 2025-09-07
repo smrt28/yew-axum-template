@@ -2,10 +2,12 @@ mod router;
 mod config;
 mod client_pool;
 mod app_error;
+mod redis;
 
 use std::path::PathBuf;
 use anyhow::Result;
 use crate::config::Config;
+use crate::router::run_server;
 
 fn get_config_path() -> Result<PathBuf> {
     #[cfg(not(debug_assertions))]
@@ -28,10 +30,10 @@ fn get_config_path() -> Result<PathBuf> {
     }
 }
 
-
 #[tokio::main]
 async fn main() -> Result<()> {
     let config_path = get_config_path()?;
-    Config::read(config_path)?;
+    let config = Config::read(config_path)?;
+    run_server(&config).await?;
     Ok(())
 }
