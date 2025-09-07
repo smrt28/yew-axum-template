@@ -12,5 +12,4 @@ impl PollableClientFactory<redis::Client> for RedisClientFactory {
     fn get_config(&self) -> &ClientPoolConfig {
         &self.pool_config
     }
-
 }
