@@ -13,6 +13,9 @@ pub enum AppError {
 
     #[error("redis error")]
     RedisError(#[from] redis::RedisError),
+
+    #[error("http error")]
+    HttpError(#[from] reqwest::Error),
 }
 
 
@@ -30,6 +33,7 @@ impl IntoResponse for AppError {
                 2
             },
             AppError::Any(_e) => 3,
+            AppError::HttpError(_e) => 4,
         };
 
         let body = serde_json::json!({

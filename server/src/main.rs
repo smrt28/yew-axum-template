@@ -31,16 +31,16 @@ fn get_config_path() -> Result<PathBuf> {
     }
 }
 
+
 #[tokio::main]
 async fn main() -> Result<()> {
-
     tracing_subscriber::fmt().init();
 
     //let subscriber = tracing_subscriber::fmt().with_max_level(Level::INFO).finish();
     //tracing::subscriber::set_global_default(subscriber);
     info!("starting server");
     let config_path = get_config_path()?;
-    let config = Config::read(config_path)?;
+    let config = Config::read(config_path)?.sanitize()?;
     run_server(&config).await?;
     Ok(())
 }

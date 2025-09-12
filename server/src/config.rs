@@ -33,4 +33,12 @@ impl Config {
         let contents = fs::read_to_string(path)?;
         Ok(toml::from_str::<Config>(&contents)?)
     }
+
+    pub fn sanitize(self) -> Result<Self, anyhow::Error> {
+        if self.client_pool.max_clients_count >= 1000 {
+            return Err(anyhow::anyhow!("Max clients count must be less than 1000"));
+        }
+
+        Ok(self)
+    }
 }

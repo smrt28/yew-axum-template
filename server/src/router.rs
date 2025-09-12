@@ -15,7 +15,8 @@ use redis::AsyncCommands;
 
 #[derive(Clone)]
 pub struct ApiState {
-   redis_client_pool: Arc<ClientsPool<redis::Client>>
+   redis_client_pool: Arc<ClientsPool<redis::Client>>,
+   http: reqwest::Client,
 }
 
 
@@ -36,22 +37,25 @@ impl FromRef<AppState> for ApiState  {
 }
 
 impl AppState {
-    fn new(config: Config) -> Self {
+    fn new(config: Config) -> Result<Self, AppError> {
         let redis_client_pool =
             Arc::new(ClientsPool::new(&config.client_pool,
                                       Arc::new(RedisClientFactory::new(&config.redis))));
-        Self {
+        Ok(Self {
             //config: config.into(),
             api_state: ApiState {
-                redis_client_pool: redis_client_pool.clone()
+                redis_client_pool: redis_client_pool.clone(),
+                http: reqwest::ClientBuilder::new()
+                    .pool_max_idle_per_host(config.client_pool.max_clients_count.try_into().unwrap())
+                    .build()?,
             }
-        }
+        })
     }
 }
 
 pub async fn run_server(config: &Config) -> anyhow::Result<()> {
 
-    let app_state = AppState::new(config.clone());
+    let app_state = AppState::new(config.clone())?;
 
     let mut app = Router::new()
         .route("/version", get(version));

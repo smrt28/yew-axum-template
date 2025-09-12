@@ -13,7 +13,6 @@ use crate::{app_error::AppError, config};
 
 pub trait PollableClientFactory<Client>: Send + Sync {
     fn build_client(&self) -> Client;
-    //fn get_config(&self) -> &ClientPoolConfig;
 }
 
 pub type Factory<Client> = Arc<dyn PollableClientFactory<Client> + Send + Sync>;
