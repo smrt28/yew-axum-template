@@ -5,19 +5,26 @@ use std::fs;
 use std::path::PathBuf;
 use serde::Deserialize;
 
+#[derive(Deserialize, Clone, Debug)]
+pub struct ClientPoolConfig {
+    pub max_clients_count: u32,
+}
+
 #[derive(Deserialize, Debug, Clone)]
 pub struct RedisConfig {
     pub uri: String,
 }
 #[derive(Deserialize, Debug, Clone)]
-pub struct HttpConfig {
+pub struct Http {
     pub port: u16,
+    pub static_www: Option<String>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Config {
-    pub port: u16,
-    pub redis: Option<RedisConfig>,
+    pub http: Http,
+    pub redis: RedisConfig,
+    pub client_pool: ClientPoolConfig,
 }
 
 

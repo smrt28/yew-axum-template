@@ -1,15 +1,20 @@
-use crate::client_pool::{ClientPoolConfig, PollableClientFactory};
+use crate::client_pool::{PollableClientFactory};
+use crate::config::RedisConfig;
 
-struct RedisClientFactory {
-    redis_uri: String,
-    pool_config: ClientPoolConfig,
+pub struct RedisClientFactory {
+    pub redis_uri: String,
 }
 
 impl PollableClientFactory<redis::Client> for RedisClientFactory {
     fn build_client(&self) -> redis::Client {
         redis::Client::open(self.redis_uri.as_str()).unwrap()
     }
-    fn get_config(&self) -> &ClientPoolConfig {
-        &self.pool_config
+}
+
+impl RedisClientFactory {
+    pub fn new(config: &RedisConfig) -> Self {
+        Self {
+            redis_uri: config.uri.clone(),
+        }
     }
 }
