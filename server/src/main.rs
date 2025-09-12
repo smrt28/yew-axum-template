@@ -6,6 +6,8 @@ mod redis;
 
 use std::path::PathBuf;
 use anyhow::Result;
+use log::info;
+use tracing::Level;
 use crate::config::Config;
 use crate::router::run_server;
 
@@ -32,6 +34,12 @@ fn get_config_path() -> Result<PathBuf> {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+
+    tracing_subscriber::fmt().init();
+
+    //let subscriber = tracing_subscriber::fmt().with_max_level(Level::INFO).finish();
+    //tracing::subscriber::set_global_default(subscriber);
+    info!("starting server");
     let config_path = get_config_path()?;
     let config = Config::read(config_path)?;
     run_server(&config).await?;

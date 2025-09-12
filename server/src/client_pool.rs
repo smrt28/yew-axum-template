@@ -4,6 +4,7 @@
 use std::ops::Deref;
 use std::sync::{Arc, Mutex as StdMutex};
 use tokio::sync::Notify;
+use tracing::info;
 use crate::config::ClientPoolConfig;
 
 use crate::{app_error::AppError, config};
@@ -92,7 +93,6 @@ impl<Client> ClientsPool<Client> {
     }
 
     pub fn pop(self: &Arc<Self>) -> ClientGuard<Client> {
-
         let mut storage = self.storage.lock().unwrap();
         if storage.clients.is_empty() {
             if storage.clients_total >= self.pool_config.max_clients_count {
@@ -103,14 +103,14 @@ impl<Client> ClientsPool<Client> {
                 };
             }
             storage.clients_total += 1;
-            println!("Creating client {}", storage.clients_total);
+            info!("Creating client {}", storage.clients_total);
             ClientGuard {
                 client: Some(self.factory.build_client().into()),
                 pool: Arc::clone(self),
                 notify: storage.notify.clone(),
             }
         } else {
-            println!("Using free client; there are {}", storage.clients.len());
+            //println!("Using free client; there are {}", storage.clients.len());
             let client = storage.clients.pop().unwrap();
             ClientGuard { 
                 client: Some(client), 

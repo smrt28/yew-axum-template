@@ -1,4 +1,5 @@
 
+//use bitflags::traits::Flags;
 use crate::config::Config;
 use std::sync::Arc;
 use axum::{routing::{get}, extract::{State, FromRef}, Router, Json};
@@ -11,6 +12,7 @@ use tower_http::services::ServeDir;
 use crate::app_error::AppError;
 use crate::client_pool::{ClientsPool};
 use crate::redis::RedisClientFactory;
+use redis::AsyncCommands;
 
 #[derive(Clone)]
 pub struct ApiState {
@@ -20,9 +22,7 @@ pub struct ApiState {
 
 impl ApiState {
 
-
 }
-
 
 #[derive(Clone)]
 pub struct AppState {
@@ -90,13 +90,10 @@ pub struct Version {
 
 pub async fn version(State(state): State<ApiState>) -> Result<Json<Version>, AppError> {
     let client_guard = state.redis_client_pool.pop();
-    let mut con = client_guard.get_connection()?;
-    let val: i32 = Commands::incr(&mut con, "b", 1)?;
-    //let result: String = Commands::set(&mut con, "a", "1")?;
+    let mut con = client_guard.get_multiplexed_async_connection().await?;
+    let val: i32 = con.incr("b", 1).await?;
 
 
-
-    //rc.client().get("a");
     Ok(Json(Version {
         value: val,
         version: "0.0.0".to_string(),
