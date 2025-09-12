@@ -3,10 +3,9 @@
 use crate::config::Config;
 use std::sync::Arc;
 use axum::{routing::{get}, extract::{State, FromRef}, Router, Json};
-use tokio::{net::TcpListener, sync::Mutex};
+use tokio::{net::TcpListener};
 use std::net::SocketAddr;
 use anyhow::Context;
-use redis::{Commands, TypedCommands};
 use tower::{ServiceBuilder};
 use tower_http::services::ServeDir;
 use crate::app_error::AppError;
@@ -26,7 +25,7 @@ impl ApiState {
 
 #[derive(Clone)]
 pub struct AppState {
-    pub config: Arc<Config>,
+    //pub config: Arc<Config>,
     pub api_state: ApiState,
 }
 
@@ -42,7 +41,7 @@ impl AppState {
             Arc::new(ClientsPool::new(&config.client_pool,
                                       Arc::new(RedisClientFactory::new(&config.redis))));
         Self {
-            config: config.into(),
+            //config: config.into(),
             api_state: ApiState {
                 redis_client_pool: redis_client_pool.clone()
             }

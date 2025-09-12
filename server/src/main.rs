@@ -7,7 +7,6 @@ mod redis;
 use std::path::PathBuf;
 use anyhow::Result;
 use log::info;
-use tracing::Level;
 use crate::config::Config;
 use crate::router::run_server;
 

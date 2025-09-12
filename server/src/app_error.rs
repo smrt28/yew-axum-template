@@ -1,7 +1,7 @@
 use axum::http::StatusCode;
 use axum::Json;
 use axum::response::{IntoResponse, Response};
-use log::{info, warn};
+use log::{info};
 
 #[derive(Debug, thiserror::Error)]
 pub enum AppError {
