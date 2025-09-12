@@ -16,6 +16,9 @@ pub enum AppError {
 
     #[error("http error")]
     HttpError(#[from] reqwest::Error),
+
+    #[error("invalid integer")]
+    TryFromIntError(#[from] std::num::TryFromIntError),
 }
 
 
@@ -34,6 +37,7 @@ impl IntoResponse for AppError {
             },
             AppError::Any(_e) => 3,
             AppError::HttpError(_e) => 4,
+            AppError::TryFromIntError(_e) => 5,
         };
 
         let body = serde_json::json!({

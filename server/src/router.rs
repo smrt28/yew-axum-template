@@ -1,7 +1,6 @@
 
-//use bitflags::traits::Flags;
+
 use crate::config::Config;
-use std::sync::Arc;
 use axum::{routing::{get}, extract::{State, FromRef}, Router, Json};
 use tokio::{net::TcpListener};
 use std::net::SocketAddr;
@@ -9,16 +8,13 @@ use anyhow::Context;
 use tower::{ServiceBuilder};
 use tower_http::services::ServeDir;
 use crate::app_error::AppError;
-use crate::client_pool::{ClientsPool};
-use crate::redis::RedisClientFactory;
 use redis::AsyncCommands;
 
 #[derive(Clone)]
 pub struct ApiState {
-   redis_client_pool: Arc<ClientsPool<redis::Client>>,
+   redis: redis::Client,
    http: reqwest::Client,
 }
-
 
 impl ApiState {
 
@@ -26,7 +22,6 @@ impl ApiState {
 
 #[derive(Clone)]
 pub struct AppState {
-    //pub config: Arc<Config>,
     pub api_state: ApiState,
 }
 
@@ -38,15 +33,11 @@ impl FromRef<AppState> for ApiState  {
 
 impl AppState {
     fn new(config: Config) -> Result<Self, AppError> {
-        let redis_client_pool =
-            Arc::new(ClientsPool::new(&config.client_pool,
-                                      Arc::new(RedisClientFactory::new(&config.redis))));
         Ok(Self {
-            //config: config.into(),
             api_state: ApiState {
-                redis_client_pool: redis_client_pool.clone(),
+                redis: redis::Client::open(config.redis.uri)?,
                 http: reqwest::ClientBuilder::new()
-                    .pool_max_idle_per_host(config.client_pool.max_clients_count.try_into().unwrap())
+                    .pool_max_idle_per_host(config.client_pool.max_clients_count.try_into()?)
                     .build()?,
             }
         })
@@ -92,10 +83,9 @@ pub struct Version {
 
 
 pub async fn version(State(state): State<ApiState>) -> Result<Json<Version>, AppError> {
-    let client_guard = state.redis_client_pool.pop();
-    let mut con = client_guard.get_multiplexed_async_connection().await?;
-    let val: i32 = con.incr("b", 1).await?;
 
+    let mut con = state.redis.get_multiplexed_async_connection().await?;
+    let val: i32 = con.incr("b", 1).await?;
 
     Ok(Json(Version {
         value: val,

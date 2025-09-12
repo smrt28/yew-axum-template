@@ -1,8 +1,7 @@
 mod router;
 mod config;
-mod client_pool;
 mod app_error;
-mod redis;
+
 
 use std::path::PathBuf;
 use anyhow::Result;
