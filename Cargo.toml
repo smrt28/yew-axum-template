@@ -1,0 +1,6 @@
+
+[workspace]
+#members = ["server", "frontend", "shared"]
+members = ["server"]
+resolver = "2"
+
