@@ -3,16 +3,33 @@
 use std::fmt;
 use std::fs;
 use std::path::PathBuf;
-use serde::Deserialize;
+use serde::{Deserialize, Deserializer};
 
 fn default_max_clients_count() -> usize {  16 }
 fn default_root() -> String {  "/".into() }
 
-
+#[derive(Debug, Clone)]
 pub struct ConfigPath {
     pub path: PathBuf,
 }
 
+impl<'de> Deserialize<'de> for ConfigPath {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let path_str = String::deserialize(deserializer)?;
+        Ok(ConfigPath {
+            path: PathBuf::from(path_str),
+        })
+    }
+}
+
+impl fmt::Display for ConfigPath {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}]", self.path.to_str().unwrap_or("/"))
+    }
+}
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct RedisConfig {
@@ -21,7 +38,7 @@ pub struct RedisConfig {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Mapping {
-    pub path: String,
+    pub path: ConfigPath,
     pub target: String,
 }
 
