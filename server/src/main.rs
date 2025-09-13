@@ -5,7 +5,7 @@ mod app_error;
 
 use std::path::PathBuf;
 use anyhow::Result;
-use log::info;
+use log::{error, info};
 use crate::config::Config;
 use crate::router::run_server;
 
@@ -40,6 +40,8 @@ async fn main() -> Result<()> {
     info!("starting server");
     let config_path = get_config_path()?;
     let config = Config::read(config_path)?.sanitize()?;
-    run_server(&config).await?;
+    if let Err(e) = run_server(&config).await {
+        error!("Server exited with error: {}", e);
+    }
     Ok(())
 }

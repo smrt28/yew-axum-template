@@ -47,7 +47,7 @@ impl AppState {
     }
 }
 
-pub async fn run_server(config: &Config) -> anyhow::Result<()> {
+pub async fn run_server(config: &Config) -> Result<(), AppError> {
 
     let app_state = AppState::new(config.clone())?;
 
@@ -56,19 +56,24 @@ pub async fn run_server(config: &Config) -> anyhow::Result<()> {
 
 
     for mapping in config.http.mappings.as_ref().unwrap_or(&vec![]) {
-        info!("mapping: {}", &mapping)
-    }
-
-    if let Some(static_dir) = &config.http.static_www {
+        mapping.check(&config)?;
+        let path = mapping.path.to_path(config)?;
+        if !(path.try_exists()?) {
+            return Err(AppError::GenerateError(
+                format!("Path {} does not exist", path.to_string_lossy())));
+        }
+        info!("mapping: {}", &mapping);
         let static_svc = ServiceBuilder::new()
             .service(
-                ServeDir::new(&static_dir)
+                ServeDir::new(&path)
                     .append_index_html_on_directories(true)
                     .precompressed_br()
                     .precompressed_gzip(),
             );
-        app = app.nest_service("/www", static_svc);
+        app = app.nest_service(&mapping.target, static_svc);
     }
+
+
 
     let app = app.with_state(app_state);
     let addr = SocketAddr::from(([127, 0, 0, 1], config.http.port));

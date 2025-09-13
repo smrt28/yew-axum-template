@@ -9,4 +9,4 @@ static_www = "/home/smrt/w/yew-axum-template/server/assets/www"
 
 [[http.mappings]]
 path = "/home/smrt/w/yew-axum-template/server/assets/www"
-target = "www"
+target = "/www"
