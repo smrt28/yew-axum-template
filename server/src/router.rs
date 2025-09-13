@@ -7,7 +7,7 @@ use std::net::SocketAddr;
 use anyhow::Context;
 use log::info;
 use tower::{ServiceBuilder};
-use tower_http::services::ServeDir;
+use tower_http::services::{ServeDir, ServeFile};
 use crate::app_error::AppError;
 use redis::AsyncCommands;
 
@@ -65,17 +65,23 @@ pub async fn run_server(config: &Config) -> Result<(), AppError> {
                 format!("Path {} does not exist", path.to_string_lossy())));
         }
         info!("mapping: {}", &mapping);
-        let static_svc = ServiceBuilder::new()
-            .service(
-                ServeDir::new(&path)
-                    .append_index_html_on_directories(true)
-                    .precompressed_br()
-                    .precompressed_gzip(),
-            );
-        app = app.nest_service(&mapping.target, static_svc);
+        let server_dir = ServeDir::new(&path)
+            .append_index_html_on_directories(true)
+            .precompressed_br()
+            .precompressed_gzip();
+        if let Some(fallback) = &mapping.fallback {
+            let fallback_path = path.join(fallback);
+            if !fallback_path.try_exists()? {
+                return Err(AppError::GenerateError(format!("Fallback is missing: {}", &fallback)));
+            }
+            let server_dir = server_dir.not_found_service(ServeFile::new(fallback_path));
+            let static_svc = ServiceBuilder::new().service(server_dir);
+            app = app.nest_service(&mapping.target, static_svc);
+        } else {
+            let static_svc = ServiceBuilder::new().service(server_dir);
+            app = app.nest_service(&mapping.target, static_svc);
+        }
     }
-
-
 
     let app = app.with_state(app_state);
     let addr = SocketAddr::from(([127, 0, 0, 1], config.http.port));

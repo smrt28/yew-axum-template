@@ -13,11 +13,12 @@ port = 3000
 [[http.mappings]]
 path = "frontend/dist"
 target = "/dist"
+fallback = "index.html"
 
 [[http.mappings]]
 path = "server/assets/css"
 target = "/css"
 
-[[http.mappings]]
-path = "server/assets/www"
-target = "/www"
+#[[http.mappings]]
+#path = "server/assets/www"
+#target = "/www"

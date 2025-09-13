@@ -6,7 +6,7 @@ mod app_error;
 use std::path::PathBuf;
 use anyhow::Result;
 use log::{error, info};
-use tracing::instrument::WithSubscriber;
+//use tracing::instrument::WithSubscriber;
 use crate::config::Config;
 use crate::router::run_server;
 

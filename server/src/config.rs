@@ -55,6 +55,7 @@ pub struct RedisConfig {
 pub struct Mapping {
     pub path: RelativePath,
     pub target: String,
+    pub fallback: Option<String>,
 }
 
 impl Mapping {
