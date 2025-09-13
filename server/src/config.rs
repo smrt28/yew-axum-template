@@ -73,9 +73,11 @@ impl Mapping {
 #[derive(Deserialize, Debug, Clone)]
 pub struct Http {
     pub port: u16,
+    pub app_home: String,
 
     #[serde(default = "default_max_clients_count")]
     pub max_clients_count: usize,
+
     pub mappings: Option<Vec<Mapping>>,
 }
 

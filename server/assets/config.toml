@@ -7,6 +7,7 @@ uri="redis://127.0.0.1/"
 
 [http]
 port = 3000
+app_home = "/dist/home"
 
 ###
 
@@ -19,6 +20,3 @@ fallback = "index.html"
 path = "server/assets/css"
 target = "/css"
 
-#[[http.mappings]]
-#path = "server/assets/www"
-#target = "/www"

@@ -11,7 +11,7 @@ use crate::components::home;
 
 #[derive(Clone, Routable, PartialEq)]
 enum Route {
-    #[at("/")]  // Add this line
+    #[at("/home")]  // Add this line
     Home,
     #[not_found]
     #[at("/404")]

@@ -1,7 +1,12 @@
 
 
 use crate::config::Config;
-use axum::{routing::{get}, extract::{State, FromRef}, Router, Json};
+use axum::{
+    http::Uri,
+    routing::{get},
+    extract::{State, FromRef},
+    response::Redirect,
+    Router, Json};
 use tokio::{net::TcpListener};
 use std::net::SocketAddr;
 use anyhow::Context;
@@ -10,6 +15,7 @@ use tower::{ServiceBuilder};
 use tower_http::services::{ServeDir, ServeFile};
 use crate::app_error::AppError;
 use redis::AsyncCommands;
+use reqwest::redirect;
 
 #[derive(Clone)]
 pub struct ApiState {
@@ -51,8 +57,16 @@ pub async fn run_server(config: &Config) -> Result<(), AppError> {
 
     let app_state = AppState::new(config.clone())?;
 
+    let root_fallback = config.http.app_home.clone();
+
     let mut app = Router::new()
-        .route("/version", get(version));
+        .fallback({
+            move |_uri: Uri| {
+                async move { Redirect::temporary(&root_fallback) }
+            }
+        })
+        .route("/version", get(version))
+    ;
 
     info!("Starting server on port {}", config.http.port);
     info!("Root: {}", config.root.as_ref().unwrap_or(&"N/A".to_string()));
