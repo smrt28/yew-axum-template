@@ -7,5 +7,6 @@ uri="redis://127.0.0.1/"
 port = 3000
 static_www = "/home/smrt/w/yew-axum-template/server/assets/www"
 
-[client_pool]
-max_clients_count = 10
+[[http.mappings]]
+path = "/home/smrt/w/yew-axum-template/server/assets/www"
+target = "www"

@@ -5,6 +5,7 @@ use axum::{routing::{get}, extract::{State, FromRef}, Router, Json};
 use tokio::{net::TcpListener};
 use std::net::SocketAddr;
 use anyhow::Context;
+use log::info;
 use tower::{ServiceBuilder};
 use tower_http::services::ServeDir;
 use crate::app_error::AppError;
@@ -13,6 +14,8 @@ use redis::AsyncCommands;
 #[derive(Clone)]
 pub struct ApiState {
    redis: redis::Client,
+    
+   #[allow(dead_code)]
    http: reqwest::Client,
 }
 
@@ -37,7 +40,7 @@ impl AppState {
             api_state: ApiState {
                 redis: redis::Client::open(config.redis.uri)?,
                 http: reqwest::ClientBuilder::new()
-                    .pool_max_idle_per_host(config.client_pool.max_clients_count.try_into()?)
+                    .pool_max_idle_per_host(config.http.max_clients_count)
                     .build()?,
             }
         })
@@ -50,6 +53,11 @@ pub async fn run_server(config: &Config) -> anyhow::Result<()> {
 
     let mut app = Router::new()
         .route("/version", get(version));
+
+
+    for mapping in config.http.mappings.as_ref().unwrap_or(&vec![]) {
+        info!("mapping: {}", &mapping)
+    }
 
     if let Some(static_dir) = &config.http.static_www {
         let static_svc = ServiceBuilder::new()
