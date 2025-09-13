@@ -1,0 +1,10 @@
+#[serve]
+#address = "127.0.0.1"
+#port = 8000
+#no_cache = true
+
+
+[build]
+dist = "dist"
+public_url = "/dist/"
+

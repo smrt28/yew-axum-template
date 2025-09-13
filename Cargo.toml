@@ -1,6 +1,5 @@
 
 [workspace]
-#members = ["server", "frontend", "shared"]
-members = ["server"]
+members = ["server", "frontend"]
 resolver = "2"
 

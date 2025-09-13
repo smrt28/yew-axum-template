@@ -5,7 +5,18 @@ uri="redis://127.0.0.1/"
 
 [http]
 port = 3000
-static_www = "/home/smrt/w/yew-axum-template/server/assets/www"
+
+###
+
+[[http.mappings]]
+path = "/home/smrt/w/yew-axum-template/frontend/dist"
+target = "/dist"
+
+###
+
+[[http.mappings]]
+path = "/home/smrt/w/yew-axum-template/server/assets/css"
+target = "/css"
 
 [[http.mappings]]
 path = "/home/smrt/w/yew-axum-template/server/assets/www"
