@@ -1,6 +1,4 @@
-
 root = "/home/smrt/w/yew-axum-template/"
-
 
 [redis]
 uri="redis://127.0.0.1/"
@@ -19,4 +17,4 @@ fallback = "index.html"
 [[http.mappings]]
 path = "server/assets/css"
 target = "/css"
-
+fallback = "app.css"

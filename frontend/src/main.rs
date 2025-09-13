@@ -21,7 +21,7 @@ enum Route {
 fn switch(route: Route) -> Html {
     match route {
         Route::NotFound => html! { <div class={"html-404"}><a href="home"><h1>{ "* 404 *" }</h1></a></div> },
-        Route::Home => html! { <home::Home /> },
+        Route::Home => html! { <home::Home title="hello world" /> },
     }
 }
 
