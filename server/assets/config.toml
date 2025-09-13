@@ -1,4 +1,6 @@
 
+root = "/home/smrt/w/yew-axum-template/"
+
 
 [redis]
 uri="redis://127.0.0.1/"
@@ -9,15 +11,13 @@ port = 3000
 ###
 
 [[http.mappings]]
-path = "/home/smrt/w/yew-axum-template/frontend/dist"
+path = "frontend/dist"
 target = "/dist"
 
-###
-
 [[http.mappings]]
-path = "/home/smrt/w/yew-axum-template/server/assets/css"
+path = "server/assets/css"
 target = "/css"
 
 [[http.mappings]]
-path = "/home/smrt/w/yew-axum-template/server/assets/www"
+path = "server/assets/www"
 target = "/www"

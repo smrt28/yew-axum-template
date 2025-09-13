@@ -30,12 +30,9 @@ pub enum AppError {
 
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
-        let http_status = StatusCode::OK;
         let uuid = Uuid::new_v4();
         let message: String = self.to_string();
-
         info!("error occurred {}: {}", uuid, message);
-
         let (http_status, code) = match &self {
             AppError::JsonError(_)        => (StatusCode::INTERNAL_SERVER_ERROR, 1),
             AppError::RedisError(_)       => (StatusCode::BAD_GATEWAY,             2),

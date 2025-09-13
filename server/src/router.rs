@@ -54,6 +54,8 @@ pub async fn run_server(config: &Config) -> Result<(), AppError> {
     let mut app = Router::new()
         .route("/version", get(version));
 
+    info!("Starting server on port {}", config.http.port);
+    info!("Root: {}", config.root.as_ref().unwrap_or(&"N/A".to_string()));
 
     for mapping in config.http.mappings.as_ref().unwrap_or(&vec![]) {
         mapping.check(&config)?;

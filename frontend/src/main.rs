@@ -5,7 +5,6 @@ use yew::function_component;
 use yew_router::BrowserRouter;
 use yew_router::Switch;
 
-
 #[derive(Clone, Routable, PartialEq)]
 enum Route {
     #[not_found]
