@@ -10,6 +10,54 @@
     margin: -8px;
 }
 
-body {
+.chat {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    color: red;
+    padding: 10px;
+    box-sizing: border-box;
+}
 
+.chat-messages {
+    border: 1px solid black;
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
+
+.chat-messages p {
+    width: 70%;
+}
+
+.chat-input {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+}
+
+.chat-input textarea {
+    flex: 1;
+    width: 300px;
+    min-height: 40px;
+    resize: vertical;
+}
+
+.chat p {
+    border: 1px solid black;
+    color: black;
+    padding: 5px;
+    margin: 5px 0;
+}
+
+html, body {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body > div {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
 }

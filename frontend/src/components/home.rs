@@ -1,7 +1,9 @@
-use yew::{function_component, html, use_effect_with, use_state, Html, Properties, UseStateHandle};
+use yew::{function_component, html, use_effect_with, use_reducer, use_state, Html, Properties, UseStateHandle};
 use wasm_bindgen_futures::spawn_local;
 use log::info;
 use gloo_timers::future::TimeoutFuture;
+use crate::components::chat::*;
+
 
 #[derive(Properties, PartialEq)]
 pub struct HomeProps {
@@ -12,6 +14,9 @@ pub struct HomeProps {
 pub fn home(props: &HomeProps) -> Html {
     let counter: UseStateHandle<i32> = use_state(|| 0);
     let counter_to_increment = counter.clone();
+
+    let chat_state = use_reducer(ChatState::default);
+
     use_effect_with(*counter, move |_| {
         spawn_local(async move {
             TimeoutFuture::new(1000).await;
@@ -21,9 +26,12 @@ pub fn home(props: &HomeProps) -> Html {
     });
 
     html! {
-        <div>
+        <div class="">
             <h1>{"Counter: "}{*counter}</h1>
             <h2>{props.title.clone()}</h2>
+
+           <Chat state={chat_state}/>
         </div>
+
     }
 }
