@@ -7,6 +7,7 @@ use gloo_timers::future::TimeoutFuture;
 use std::rc::Rc;
 use std::borrow::BorrowMut;
 use serde_json::Number;
+use web_sys::js_sys;
 use crate::components::chat::ChatAction;
 use crate::components::simcalendar::SimCalendarAction::DayClicked;
 
@@ -88,6 +89,28 @@ pub fn chat(props: &SimCalendarProps) -> Html {
                                 let class_name = format!("time-slot {}", get_action_class(action_code));
                                 let state = props.state.clone();
                                 let onclick = Callback::from(move |_| {
+
+                                let calendar_json = serde_json::to_string(&state.action_codes.to_vec()).unwrap();
+
+let js_code = format!(r#"
+(function() {{
+    function run(calendar) {{
+        console.log("calendar:", calendar);
+        return true;
+    }}
+    return run({});
+}})()
+"#, calendar_json);
+
+
+
+                                    js_sys::eval(&js_code).unwrap();
+
+
+
+
+
+
                                     state.dispatch(DayClicked(index));
                                 });
                                 html! {
