@@ -8,6 +8,7 @@ use std::rc::Rc;
 use std::borrow::BorrowMut;
 use serde_json::Number;
 use crate::components::chat::ChatAction;
+use crate::components::simcalendar::SimCalendarAction::DayClicked;
 
 #[derive(Clone, PartialEq)]
 pub struct SimCalendarState {
@@ -33,6 +34,7 @@ struct CalendarAction {
 
 pub enum SimCalendarAction {
     SetAction(CalendarAction),
+    DayClicked(usize),
 }
 
 #[derive(Properties, PartialEq)]
@@ -48,6 +50,13 @@ impl Reducible for SimCalendarState {
             SimCalendarAction::SetAction(action) => {
                 let mut state = (*self).clone();
                 state.action_codes[action.index] = action.action_code;
+                Rc::new(state)
+            }
+
+            DayClicked(day_index) => {
+                info!("Day clicked: {}", day_index);
+                let mut state = (*self).clone();
+                state.action_codes[day_index] = 1;
                 Rc::new(state)
             }
         }
@@ -74,11 +83,15 @@ pub fn chat(props: &SimCalendarProps) -> Html {
                         <div class="hour-row">
                             <div class="hour-label">{format!("{:02}:00", hour)}</div>
                             {for (0..7).map(|day| {
-                                let index = hour * 7 + day;
+                                let index = day * 24 + hour;
                                 let action_code = props.state.action_codes[index];
                                 let class_name = format!("time-slot {}", get_action_class(action_code));
+                                let state = props.state.clone();
+                                let onclick = Callback::from(move |_| {
+                                    state.dispatch(DayClicked(index));
+                                });
                                 html! {
-                                    <div class={class_name}></div>
+                                    <div class={class_name} {onclick}></div>
                                 }
                             })}
                         </div>
