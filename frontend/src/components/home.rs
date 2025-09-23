@@ -3,7 +3,7 @@ use wasm_bindgen_futures::spawn_local;
 use log::info;
 use gloo_timers::future::TimeoutFuture;
 use crate::components::chat::*;
-
+use crate::components::simcalendar::*;
 
 #[derive(Properties, PartialEq)]
 pub struct HomeProps {
@@ -15,7 +15,8 @@ pub fn home(props: &HomeProps) -> Html {
     let counter: UseStateHandle<i32> = use_state(|| 0);
     let counter_to_increment = counter.clone();
 
-    let chat_state = use_reducer(ChatState::default);
+    let chat_state1 = use_reducer(ChatState::default);
+    let chat_state2 = use_reducer(ChatState::default);
 
     use_effect_with(*counter, move |_| {
         spawn_local(async move {
@@ -25,12 +26,24 @@ pub fn home(props: &HomeProps) -> Html {
         });
     });
 
+
+    let sim_calendar_state = use_reducer(SimCalendarState::default);
+
     html! {
         <div class="">
-            <h1>{"Counter: "}{*counter}</h1>
-            <h2>{props.title.clone()}</h2>
 
-           <Chat state={chat_state}/>
+
+            <SimCalendar state={sim_calendar_state}/>
+
+
+/*
+            <div class="chats">
+                <Chat state={chat_state1} read_only=false/>
+                <Chat state={chat_state2} read_only=true/>
+            </div>
+  */
+
+
         </div>
 
     }

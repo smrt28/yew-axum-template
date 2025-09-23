@@ -10,6 +10,8 @@ use std::borrow::BorrowMut;
 #[derive(Clone, PartialEq, Default)]
 pub struct ChatState {
     messages: Vec<String>,
+
+
 }
 
 impl ChatState {
@@ -51,6 +53,7 @@ impl ChatState {
 
 #[derive(Properties, PartialEq)]
 pub struct ChatProps {
+    pub read_only: bool,
     pub state:  UseReducerHandle<ChatState>,
 }
 
@@ -81,15 +84,14 @@ pub fn chat(props: &ChatProps) -> Html {
             }
          </div>
 
-            <div class="chat-input">
-                <textarea
-                    ref={textarea_ref}
-                />
-            </div>
 
-            <button onclick={on_send}>{"Send"}</button>
-
-            <p>{props.state.messages_count()}</p>
+            if !props.read_only {
+                <div class="chat-input">
+                    <textarea ref={textarea_ref} />
+                </div>
+                <button onclick={on_send}>{"Send"}</button>
+                <p>{props.state.messages_count()}</p>
+            }
         </div>
     }
 }
