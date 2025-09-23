@@ -14,6 +14,9 @@ pub struct SimCalendarState {
     action_codes: [i32; 7 * 24],
 }
 
+fn get_action_class(action_code: i32) -> String {
+    format!("action-{}", action_code)
+}
 
 impl Default for SimCalendarState {
     fn default() -> Self {
@@ -23,9 +26,13 @@ impl Default for SimCalendarState {
     }
 }
 
+struct CalendarAction {
+    index: usize,
+    action_code: i32,
+}
 
 pub enum SimCalendarAction {
-    SetAction(Number, String),
+    SetAction(CalendarAction),
 }
 
 #[derive(Properties, PartialEq)]
@@ -33,11 +40,17 @@ pub struct SimCalendarProps {
     pub state:  UseReducerHandle<SimCalendarState>,
 }
 
-
 impl Reducible for SimCalendarState {
     type Action = SimCalendarAction;
-    fn reduce(self: Rc<Self>, action: Self::Action) -> Rc<Self> {
-        Rc::new((*self).clone())
+    fn reduce(self: Rc<Self>, action: Self::Action) -> Rc<Self>
+    {
+        match action {
+            SimCalendarAction::SetAction(action) => {
+                let mut state = (*self).clone();
+                state.action_codes[action.index] = action.action_code;
+                Rc::new(state)
+            }
+        }
     }
 }
 
@@ -45,13 +58,10 @@ impl Reducible for SimCalendarState {
 #[function_component(SimCalendar)]
 pub fn chat(props: &SimCalendarProps) -> Html {
     let days = vec!["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
-
     html! {
         <div class="calendar-container">
-            // Header with day names
             <div class="calendar-header">
-                <div class="hour-label-header"></div> // Empty space above hour labels
+                <div class="hour-label-header"></div>
                 {for days.iter().map(|day| html! {
                     <div class="day-header">{day}</div>
                 })}
@@ -63,8 +73,13 @@ pub fn chat(props: &SimCalendarProps) -> Html {
                     html! {
                         <div class="hour-row">
                             <div class="hour-label">{format!("{:02}:00", hour)}</div>
-                            {for (0..7).map(|_day| html! {
-                                <div class="time-slot"></div>
+                            {for (0..7).map(|day| {
+                                let index = hour * 7 + day;
+                                let action_code = props.state.action_codes[index];
+                                let class_name = format!("time-slot {}", get_action_class(action_code));
+                                html! {
+                                    <div class={class_name}></div>
+                                }
                             })}
                         </div>
                     }
