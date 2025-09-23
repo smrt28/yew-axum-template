@@ -2,6 +2,10 @@ mod router;
 mod config;
 mod app_error;
 
+use boa_engine::{
+    Context, JsResult, JsValue, Source, js_string,
+    value::{TryFromJs, TryIntoJs},
+};
 
 use std::path::PathBuf;
 use anyhow::Result;
@@ -34,6 +38,21 @@ fn get_config_path() -> Result<PathBuf> {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+/*
+    let js_code = r#"
+function hello() {
+    return false;
+}
+hello();
+"#;
+    let mut context = Context::default();
+    if let Ok(res) = context.eval(Source::from_bytes(js_code)) {
+        println!("{:#?}", res);
+    }
+
+*/
+
+
     tracing_subscriber::fmt()
         .with_file(true)
         .with_line_number(true)
@@ -46,5 +65,6 @@ async fn main() -> Result<()> {
     if let Err(e) = run_server(&config).await {
         error!("Server exited with error: {}", e);
     }
+
     Ok(())
 }
