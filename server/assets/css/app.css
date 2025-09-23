@@ -82,6 +82,7 @@ body > div {
     width: 700px;
     height: 100vh;
     font-family: Arial, sans-serif;
+    user-select: none;
 }
 
 .calendar-header {
@@ -140,6 +141,7 @@ body > div {
     border-right: 1px solid var(--border-color);
     cursor: pointer;
     transition: background-color 0.2s;
+    user-select: none;
 
 }
 
