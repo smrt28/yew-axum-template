@@ -33,15 +33,15 @@ pub fn home(props: &HomeProps) -> Html {
         <div class="">
 
 
-            <SimCalendar state={sim_calendar_state}/>
+//            <SimCalendar state={sim_calendar_state}/>
 
 
-/*
+
             <div class="chats">
                 <Chat state={chat_state1} read_only=false/>
                 <Chat state={chat_state2} read_only=true/>
             </div>
-  */
+
 
 
         </div>

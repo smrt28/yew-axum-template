@@ -79,7 +79,7 @@ pub fn chat(props: &ChatProps) -> Html {
          <div class="chat-messages">
             {
                 for props.state.get_messages().iter().map(|message| {
-                    html! {<p>{message}</p> }
+                    html! {<div class="chat-message">{message}</div> }
                 })
             }
          </div>

@@ -25,7 +25,7 @@
     color: red;
     padding: 10px;
     box-sizing: border-box;
-    width: 300px;
+    width: 380px;
 }
 
 .chat-messages {
@@ -33,10 +33,18 @@
     flex: 1;
     overflow-y: auto;
     margin-bottom: 10px;
+    flex-direction: column;
 }
 
-.chat-messages p {
-    width: 70%;
+.chat-message {
+    margin: 3px 5px;
+    padding: 3px;
+    border-radius: 8px;
+
+    border: 2px solid #cd5555;
+    display: flex;
+    font-family: "DejaVu Sans Mono", monospace;
+
 }
 
 .chat-input {
