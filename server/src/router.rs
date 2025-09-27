@@ -3,19 +3,23 @@
 use crate::config::Config;
 use axum::{
     http::Uri,
-    routing::{get, post},
+    routing::{get, post, any},
     extract::{State, FromRef},
-    response::Redirect,
-    Router, Json};
+    Router, Json,
+    extract::ws::{WebSocketUpgrade, WebSocket},
+    response::{IntoResponse, Response, Redirect},
+};
 use tokio::{net::TcpListener};
 use std::net::SocketAddr;
 use anyhow::Context;
+
 use log::info;
 use tower::{ServiceBuilder};
 use tower_http::services::{ServeDir, ServeFile};
 use crate::app_error::AppError;
 use redis::AsyncCommands;
 use reqwest::redirect;
+
 
 #[derive(Clone)]
 pub struct ApiState {
@@ -64,6 +68,8 @@ pub async fn run_server(config: &Config) -> Result<(), AppError> {
             }
         })
         .route("/version", get(version))
+        .route("/ws", any(handler))
+
         //.route("/chat/message", post())
 
     ;
@@ -124,4 +130,32 @@ pub async fn version(State(state): State<ApiState>) -> Result<Json<Version>, App
         value: val,
         version: "0.0.0".to_string(),
     }))
+}
+
+async fn handler(ws: WebSocketUpgrade) -> Response {
+    ws.on_upgrade(handle_socket)
+}
+
+async fn handle_socket(mut socket: WebSocket) {
+    info!("WebSocket connection opened");
+    while let Some(msg) = socket.recv().await {
+        match msg {
+            Ok(axum::extract::ws::Message::Text(text)) => {
+                info!("Received message: {}", text);
+                if socket.send(axum::extract::ws::Message::Text(text)).await.is_err() {
+                    info!("Failed to send message");
+                    break;
+                }
+            }
+            Ok(axum::extract::ws::Message::Close(_)) => {
+                info!("WebSocket connection closed");
+                break;
+            }
+            Err(e) => {
+                info!("WebSocket error: {}", e);
+                break;
+            }
+            _ => {}
+        }
+    }
 }
