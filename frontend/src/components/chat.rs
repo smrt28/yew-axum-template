@@ -1,6 +1,6 @@
 use yew::{functional::{
     UseReducerHandle
-}, function_component, html, use_effect_with, use_state, Html, Properties, UseStateHandle, Reducible, Callback, use_node_ref, props, use_state_eq};
+}, function_component, html, use_effect_with, use_state, Html, Properties, UseStateHandle, Reducible, Callback, use_node_ref, props, use_state_eq, hook};
 use wasm_bindgen_futures::spawn_local;
 use log::info;
 use gloo_timers::future::TimeoutFuture;
@@ -60,13 +60,83 @@ pub struct ChatProps {
     pub state:  UseReducerHandle<ChatState>,
 }
 
+
+
+// Custom hook for WebSocket
+#[hook]
+fn use_websocket(url: &str, on_message: Callback<String>) -> (bool, Callback<String>) {
+    let ws_ref = use_state(|| None::<WebSocket>);
+    let connected = use_state(|| false);
+
+    // Setup connection
+    use_effect_with(url.to_string(), {
+        let ws_ref = ws_ref.clone();
+        let ws_ref2 = ws_ref.clone();
+        let connected = connected.clone();
+        let on_message = on_message.clone();
+
+        move |url| {
+            let url = url.clone();
+            spawn_local(async move {
+                if let Ok(ws) = WebSocket::new(&url) {
+                    // Simple handler setup
+                    let connected_clone = connected.clone();
+                    let onopen: Closure<dyn FnMut(JsValue)>  = Closure::new(move |_| {
+                        connected_clone.set(true)
+                    });
+                    ws.set_onopen(Some(onopen.as_ref().unchecked_ref()));
+                    onopen.forget();
+
+                    let on_message_clone = on_message.clone();
+                    let onmessage: Closure<dyn FnMut(MessageEvent)> = Closure::new(move |e: MessageEvent| {
+                        if let Ok(text) = e.data().dyn_into::<js_sys::JsString>() {
+                            on_message_clone.emit(String::from(text));
+                        }
+                    });
+                    ws.set_onmessage(Some(onmessage.as_ref().unchecked_ref()));
+                    onmessage.forget();
+
+                    let connected_clone = connected.clone();
+                    let onclose: Closure<dyn FnMut(CloseEvent)> = Closure::new(move |_| connected_clone.set(false));
+                    ws.set_onclose(Some(onclose.as_ref().unchecked_ref()));
+                    onclose.forget();
+
+                    ws_ref.set(Some(ws));
+                }
+            });
+
+            move || {
+                if let Some(ws) = (*ws_ref2).as_ref() {
+                    let _ = ws.close();
+                }
+            }
+        }
+    });
+
+    // Send message function
+    let send_message = {
+        let ws_ref = ws_ref.clone();
+        Callback::from(move |message: String| {
+            if let Some(ws) = (*ws_ref).as_ref() {
+                let _ = ws.send_with_str(&message);
+            }
+        })
+    };
+
+    (*connected, send_message)
+}
+
+
+
 #[function_component(Chat)]
 pub fn chat(props: &ChatProps) -> Html {
     let is_read_only = props.read_only;
-    let ws_ref = use_state(|| None::<WebSocket>);
+    //let ws_ref = use_state(|| None::<WebSocket>);
 
+    /*
     use_effect_with((), {
         let ws_ref = ws_ref.clone();
+        let state = props.state.clone();
         move |_| {
             if is_read_only {
                 return;
@@ -97,12 +167,20 @@ pub fn chat(props: &ChatProps) -> Html {
                     }
                 }
 
-
-                //let ws_url = format!("{}//{}:8080/ws", protocol, host.split(':').next().unwrap_or("localhost"));
                 info!("protocol: {}", ws_url);
             });
         }
     });
+     */
+
+    let on_ws_message = {
+        let state = props.state.clone();
+        Callback::from(move |message: String| {
+
+        })
+    };
+
+    let (connected, send_ws_message) = use_websocket("ws://localhost:3000/ws", on_ws_message);
 
 
     let textarea_ref = use_node_ref();
@@ -114,26 +192,8 @@ pub fn chat(props: &ChatProps) -> Html {
             if let Some(textarea) = textarea_ref.cast::<web_sys::HtmlTextAreaElement>() {
                 let value = textarea.value();
                 textarea.set_value("");
-                info!("Send: {}", value);
-
-                if let Some(ws) = (*ws_ref).as_ref() {
-                    if ws.ready_state() != WebSocket::OPEN {
-                        return;
-                    }
-
-                    match ws.send_with_str(&value) {
-                        Ok(_) => {
-                            info!("Sent via WebSocket: {}", value);
-                            state.dispatch(ChatAction::MessageSent(value));
-                        }
-                        Err(e) => {
-                            info!("Failed to send message: {:?}", e);
-                        }
-                    }
-
-                } else {
-                    info!("WebSocket is not ready");
-                }
+                info!("Send: {}", &value);
+                send_ws_message.emit(value);
             }
         })
     };

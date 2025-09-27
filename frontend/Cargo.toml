@@ -17,6 +17,7 @@ gloo-timers = "0.3.0"
 web-sys = "0.3.78"
 yew-websocket = "1.21.0"
 wasm-bindgen = "0.2.101"
+js-sys = "0.3.78"
 
 
 
