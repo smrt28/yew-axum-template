@@ -14,7 +14,7 @@
     display: flex;
     flex-direction: row;
     justify-content: center;
-    gap: 10px;
+    gap: 20px;
     align-items: center;
 }
 
@@ -23,7 +23,6 @@
     display: flex;
     flex-direction: column;
     color: red;
-    padding: 10px;
     box-sizing: border-box;
     width: 380px;
 }
@@ -40,7 +39,6 @@
     margin: 3px 5px;
     padding: 3px;
     border-radius: 8px;
-
     border: 2px solid #cd5555;
     display: flex;
     font-family: "DejaVu Sans Mono", monospace;
@@ -48,17 +46,42 @@
 }
 
 .chat-input {
+    height: 60px;
+    margin-bottom: 10px;
     display: flex;
-    gap: 10px;
+    flex-direction: row;
     align-items: flex-end;
 }
 
 .chat-input textarea {
     flex: 1;
-
-    min-height: 40px;
-    resize: vertical;
+    height: 100%;
+    resize: none;
+    box-sizing: border-box;
 }
+
+.chat-input button {
+    flex: 0;
+    box-sizing: border-box;
+    height: 100%;
+    width: 40px;
+    border: none;
+    background-color: #87b4ff;
+    color: white;
+}
+
+.chat-head {
+    height: fit-content;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.chat-head h1 {
+    margin: 5px;
+}
+
+
 
 .chat p {
     border: 1px solid black;

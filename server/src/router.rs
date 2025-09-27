@@ -3,7 +3,7 @@
 use crate::config::Config;
 use axum::{
     http::Uri,
-    routing::{get},
+    routing::{get, post},
     extract::{State, FromRef},
     response::Redirect,
     Router, Json};
@@ -54,9 +54,7 @@ impl AppState {
 }
 
 pub async fn run_server(config: &Config) -> Result<(), AppError> {
-
     let app_state = AppState::new(config.clone())?;
-
     let root_fallback = config.http.app_home.clone();
 
     let mut app = Router::new()
@@ -66,6 +64,8 @@ pub async fn run_server(config: &Config) -> Result<(), AppError> {
             }
         })
         .route("/version", get(version))
+        //.route("/chat/message", post())
+
     ;
 
     info!("Starting server on port {}", config.http.port);
@@ -116,9 +116,7 @@ pub struct Version {
     pub version: String,
 }
 
-
 pub async fn version(State(state): State<ApiState>) -> Result<Json<Version>, AppError> {
-
     let mut con = state.redis.get_multiplexed_async_connection().await?;
     let val: i32 = con.incr("b", 1).await?;
 

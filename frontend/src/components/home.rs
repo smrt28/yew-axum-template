@@ -17,6 +17,7 @@ pub fn home(props: &HomeProps) -> Html {
 
     let chat_state1 = use_reducer(ChatState::default);
     let chat_state2 = use_reducer(ChatState::default);
+    let chat_state3 = use_reducer(ChatState::default);
 
     use_effect_with(*counter, move |_| {
         spawn_local(async move {
@@ -33,13 +34,14 @@ pub fn home(props: &HomeProps) -> Html {
         <div class="">
 
 
-//            <SimCalendar state={sim_calendar_state}/>
+           <SimCalendar state={sim_calendar_state}/>
 
 
 
             <div class="chats">
-                <Chat state={chat_state1} read_only=false/>
-                <Chat state={chat_state2} read_only=true/>
+                <Chat name="Tom" state={chat_state1} read_only=false/>
+                <Chat name="Dick" state={chat_state2} read_only=true/>
+                <Chat name="Harry" state={chat_state3} read_only=true/>
             </div>
 
 

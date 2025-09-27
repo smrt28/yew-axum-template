@@ -26,6 +26,9 @@ pub enum AppError {
 
     #[error("io error: {0}")]
     IOError(#[from] std::io::Error),
+    
+    #[error("token error: {0}")]
+    TokenError(String),
 }
 
 impl IntoResponse for AppError {
@@ -43,6 +46,7 @@ impl IntoResponse for AppError {
             AppError::GenerateError(_)    => (StatusCode::BAD_REQUEST,             6),
             AppError::IOError(e) if e.kind() == std::io::ErrorKind::NotFound  => (StatusCode::NOT_FOUND, 7),
             AppError::IOError(_)          => (StatusCode::INTERNAL_SERVER_ERROR,   7),
+            AppError::TokenError(_) => (StatusCode::BAD_REQUEST,             8),
         };
 
         let body = serde_json::json!({

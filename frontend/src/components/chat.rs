@@ -6,12 +6,11 @@ use log::info;
 use gloo_timers::future::TimeoutFuture;
 use std::rc::Rc;
 use std::borrow::BorrowMut;
+use crate::components::home::_HomeProps::title;
 
 #[derive(Clone, PartialEq, Default)]
 pub struct ChatState {
     messages: Vec<String>,
-
-
 }
 
 impl ChatState {
@@ -53,6 +52,7 @@ impl ChatState {
 
 #[derive(Properties, PartialEq)]
 pub struct ChatProps {
+    pub name: String,
     pub read_only: bool,
     pub state:  UseReducerHandle<ChatState>,
 }
@@ -76,6 +76,9 @@ pub fn chat(props: &ChatProps) -> Html {
 
     html! {
         <div class="chat">
+        <div class="chat-head">
+        <h1> {props.name.clone()} </h1>
+        </div>
          <div class="chat-messages">
             {
                 for props.state.get_messages().iter().map(|message| {
@@ -88,9 +91,9 @@ pub fn chat(props: &ChatProps) -> Html {
             if !props.read_only {
                 <div class="chat-input">
                     <textarea ref={textarea_ref} />
+                    <button onclick={on_send}>{"Send"}</button>
                 </div>
-                <button onclick={on_send}>{"Send"}</button>
-                <p>{props.state.messages_count()}</p>
+
             }
         </div>
     }
