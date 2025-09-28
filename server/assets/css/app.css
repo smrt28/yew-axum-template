@@ -186,3 +186,148 @@ body > div {
 }
 
 .action-1 { background-color: #0a39f3; }
+
+
+
+.login-container {
+    display: flex;
+    width: 300px;
+    flex-direction: column;
+}
+
+
+.login {
+    padding: 0.75rem 0.75rem 0;
+    background: #ffffff;
+    border: 1px solid #e1e5e9;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Labels */
+.login label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+/* Form Inputs */
+.login-name,
+.login-password {
+    width: 100%;
+    padding: 0.25rem;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    font-family: Arial, sans-seri, serif;
+    border: 2px solid #d1d5db;
+    border-radius: 5px;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease-in-out;
+}
+
+.login-name:hover,
+.login-password:hover {
+    border-color: #9ca3af;
+}
+
+.login-name:focus,
+.login-password:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Login Button */
+.login-button {
+    width: 100%;
+    padding: 0.75rem;
+
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    background-color: #3b82f6;
+    border: none;
+    border-radius: 8px;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+
+.registration {
+    margin-left: 1rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    font-size: 10px;
+    height: 25px;
+    justify-content: space-between;
+}
+
+.registration-container {
+    display: flex;
+    flex-direction: row;
+    margin-left: auto;
+}
+
+.registration-container input[type="checkbox"] {
+    margin: 0;
+    flex-shrink: 0;
+
+}
+
+.registration-container label {
+    margin-left: 0.1rem;
+    color: rgba(120, 120, 131, 0.82);
+    cursor: pointer;
+    user-select: none;
+    align-items: baseline;
+}
+
+
+
+.invitation-code {
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem;
+    color: #6b7280;
+}
+
+.invitation-code input {
+    width: 50px;
+    font-size: 10px;
+}
+
+
+
+.home {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+
+
+.login-error {
+    color: red;
+    height: 1em;
+    padding: 2px;
+    font-size: 10px;
+}
+
+
+
+
+
+
+
+
+
+
+
+

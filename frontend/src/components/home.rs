@@ -2,6 +2,8 @@ use yew::{function_component, html, use_effect_with, use_reducer, use_state, Htm
 use wasm_bindgen_futures::spawn_local;
 use log::info;
 use gloo_timers::future::TimeoutFuture;
+
+use crate::components::login::*;
 use crate::components::chat::*;
 use crate::components::simcalendar::*;
 
@@ -33,7 +35,11 @@ pub fn home(props: &HomeProps) -> Html {
     html! {
         <div class="">
 
+        <div class="home">
+        <Login/>
+        </div>
 
+/*
            <SimCalendar state={sim_calendar_state}/>
 
 
@@ -43,7 +49,7 @@ pub fn home(props: &HomeProps) -> Html {
                 <Chat name="Dick" state={chat_state2} read_only=true/>
                 <Chat name="Harry" state={chat_state3} read_only=true/>
             </div>
-
+*/
 
 
         </div>
