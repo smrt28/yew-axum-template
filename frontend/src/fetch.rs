@@ -2,6 +2,7 @@ use gloo::net::http::Request;
 use serde_json::Value;
 use yew::platform::spawn_local;
 use serde::de::DeserializeOwned;
+use anyhow::Error;
 
 enum RequestType {
     GET,
@@ -68,70 +69,40 @@ impl Fetch {
         self
     }
 
-    async fn send_internal<T>(self) -> FetchResponse<T>
+    async fn send_internal<T>(self) -> Result<FetchResponse<T>, anyhow::Error>
     where
         T: DeserializeOwned,
     {
-        let request = match(self.request_type, self.url) {
-            (RequestType::GET, Some(url)) => {
-                Request::get(&url)
-            },
-            (RequestType::POST, Some(url)) => {
-                Request::post(&url)
-            },
-            _ => {
-                return FetchResponse::error("method not set");
-            }
+        let request = match (self.request_type, self.url) {
+            (RequestType::GET, Some(url)) => Request::get(&url),
+            (RequestType::POST, Some(url)) => Request::post(&url),
+            _ => return Err(Error::msg("method not set")),
         }.header("Content-Type", "application/json");
 
-        // Add the JSON body if data exists
         let request = if let Some(data) = self.data {
-            match request.body(data) {
-                Ok(req) => req,
-                Err(e) => return FetchResponse::error(&e.to_string()),
-            }
+            request.body(data)?
         } else {
-            match request.build() {
-                Ok(req) => req,
-                Err(e) => return FetchResponse::error(&e.to_string()),
-            }
+            request.build()?
         };
 
-        match request.send().await {
-            Ok(resp) => {
-                match resp.text().await {
-                    Ok(text) => {
-                        match serde_json::from_str::<T>(&text) {
-                            Ok(data) => {
-                                FetchResponse {
-                                    data: Some(data),
-                                    status: Status::OK,
-                                }
-                            },
-                            Err(e) => {
-                                FetchResponse::<T>::error(&e.to_string())
-                            }
-                        }
-                    },
-                    Err(e) => {
-                        FetchResponse::<T>::error(&e.to_string())
-                    }
-                }
-            },
-            Err(e) => {
-                FetchResponse::<T>::error(&e.to_string())
-            }
-        }
+        let resp = request.send().await?;
+        let text = resp.text().await?;
+
+        Ok(FetchResponse {
+            data: Some(serde_json::from_str::<T>(&text)?),
+            status: Status::OK,
+        })
     }
 
     pub fn fetch<Fut, T, F>(self, cb: F)
     where
         T: DeserializeOwned,
         F: FnOnce(FetchResponse<T>) -> Fut + 'static,
-        Fut: Future<Output = ()> + 'static,
+        Fut: Future<Output=()> + 'static,
     {
         spawn_local(async move {
-            let resp = self.send_internal().await;
+            let resp = self.send_internal().await
+                .unwrap_or_else(|e| FetchResponse::error(&e.to_string()));
             cb(resp).await;
         });
     }
