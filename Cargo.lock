@@ -709,10 +709,12 @@ name = "frontent"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "gloo 0.10.0",
  "gloo-storage 0.3.0",
  "gloo-timers 0.3.0",
  "js-sys",
  "log",
+ "serde",
  "serde_json",
  "wasm-bindgen",
  "wasm-bindgen-futures",

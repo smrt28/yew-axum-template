@@ -6,6 +6,7 @@ use yew_router::BrowserRouter;
 use yew_router::Switch;
 
 mod components;
+mod fetch;
 
 use crate::components::home;
 

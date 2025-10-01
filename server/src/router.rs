@@ -19,7 +19,7 @@ use tower_http::services::{ServeDir, ServeFile};
 use crate::app_error::AppError;
 use redis::AsyncCommands;
 use reqwest::redirect;
-
+use tracing_subscriber::registry::Data;
 
 #[derive(Clone)]
 pub struct ApiState {
@@ -57,6 +57,9 @@ impl AppState {
     }
 }
 
+
+
+
 pub async fn run_server(config: &Config) -> Result<(), AppError> {
     let app_state = AppState::new(config.clone())?;
     let root_fallback = config.http.app_home.clone();
@@ -69,9 +72,7 @@ pub async fn run_server(config: &Config) -> Result<(), AppError> {
         })
         .route("/version", get(version))
         .route("/ws", any(handler))
-
-        //.route("/chat/message", post())
-
+        .route("/login", post(login))
     ;
 
     info!("Starting server on port {}", config.http.port);
@@ -120,6 +121,26 @@ pub async fn run_server(config: &Config) -> Result<(), AppError> {
 pub struct Version {
     pub value: i32,
     pub version: String,
+}
+
+#[derive(serde::Serialize)]
+pub struct LoginStatus {
+    pub status: String,
+
+}
+#[derive(serde::Deserialize, Debug)]
+pub struct LoginRequest {
+    pub username: String,
+    pub password: String,
+}
+
+pub async fn login(State(state): State<ApiState>,
+                   Json(payload): Json<LoginRequest>,) -> Result<Json<LoginStatus>, AppError> {
+    info!("Login");
+    info!("Login - username: {}, password: {}", payload.username, payload.password);
+    Ok(Json(LoginStatus {
+        status: "OK".to_string(),
+    }))
 }
 
 pub async fn version(State(state): State<ApiState>) -> Result<Json<Version>, AppError> {
