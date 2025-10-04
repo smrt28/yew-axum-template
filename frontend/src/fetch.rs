@@ -44,7 +44,6 @@ impl<T> FetchResponse<T> {
     }
 }
 
-
 impl Fetch {
     pub fn new() -> Self {
         Self {

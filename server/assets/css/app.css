@@ -191,13 +191,14 @@ body > div {
 
 .login-container {
     display: flex;
-    width: 300px;
+    width: 380px;
     flex-direction: column;
+
 }
 
 
 .login {
-    padding: 0.75rem 0.75rem 0;
+    padding: 0.75rem;
     background: #ffffff;
     border: 1px solid #e1e5e9;
     border-radius: 12px;
@@ -292,6 +293,7 @@ body > div {
 .invitation-code {
     display: flex;
     align-items: baseline;
+    font-size: 14px;
     gap: 0.25rem;
     color: #6b7280;
 }
@@ -313,18 +315,30 @@ body > div {
 
 
 
-.login-error {
+.login-error-message {
+    margin-top: 8px;
+    text-align: center;
+    width: 100%;
     color: red;
     height: 1em;
     padding: 2px;
-    font-size: 10px;
+    font-size: 20px;
 }
 
 
+.login-password-entry {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+}
 
 
-
-
+.login-password-entry div {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
 
 
 
