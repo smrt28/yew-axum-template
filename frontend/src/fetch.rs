@@ -1,5 +1,4 @@
 #![allow(dead_code)]
-
 use gloo::net::http::Request;
 use yew::platform::spawn_local;
 use serde::de::DeserializeOwned;

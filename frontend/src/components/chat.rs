@@ -106,6 +106,7 @@ fn use_websocket(url: &str, on_message: Callback<String>) -> (bool, Callback<Str
                 }
             });
 
+
             move || {
                 if let Some(ws) = (*ws_ref2).as_ref() {
                     let _ = ws.close();
@@ -126,7 +127,6 @@ fn use_websocket(url: &str, on_message: Callback<String>) -> (bool, Callback<Str
 
     (*connected, send_message)
 }
-
 
 
 #[function_component(Chat)]
