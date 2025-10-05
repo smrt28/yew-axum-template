@@ -1,16 +1,16 @@
+#![allow(dead_code)]
 
 use yew::{functional::{
     UseReducerHandle
 }, function_component,
           html, use_effect_with, use_state, Html, Properties, 
-          UseStateHandle, Reducible, Callback, use_node_ref, props, use_state_eq, hook
+          Reducible, Callback, use_node_ref, hook
 };
 use wasm_bindgen_futures::spawn_local;
 use log::info;
 use std::rc::Rc;
 use web_sys::{WebSocket, MessageEvent, CloseEvent};
 use wasm_bindgen::{prelude::*, JsCast};
-
 
 #[derive(Clone, PartialEq, Default)]
 pub struct ChatState {
@@ -131,22 +131,22 @@ fn use_websocket(url: &str, on_message: Callback<String>) -> (bool, Callback<Str
 
 #[function_component(Chat)]
 pub fn chat(props: &ChatProps) -> Html {
-    let is_read_only = props.read_only;
+    let _is_read_only = props.read_only;
     let on_ws_message = {
-        let state = props.state.clone();
-        Callback::from(move |message: String| {
+        let _state = props.state.clone();
+        Callback::from(move |_message: String| {
 
         })
     };
 
-    let (connected, send_ws_message) = use_websocket("ws://localhost:3000/ws", on_ws_message);
+    let (_connected, send_ws_message) = use_websocket("ws://localhost:3000/ws", on_ws_message);
 
 
     let textarea_ref = use_node_ref();
 
     let on_send = {
         let textarea_ref = textarea_ref.clone();
-        let state = props.state.clone();
+        let _state = props.state.clone();
         Callback::from(move |_| {
             if let Some(textarea) = textarea_ref.cast::<web_sys::HtmlTextAreaElement>() {
                 let value = textarea.value();

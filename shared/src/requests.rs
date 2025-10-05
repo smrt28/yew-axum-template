@@ -6,3 +6,5 @@ pub struct LoginRegisterRequest {
     pub password: String,
     pub invitation_code: Option<String>,
 }
+
+

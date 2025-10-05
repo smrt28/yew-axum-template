@@ -1,5 +1,6 @@
+#![allow(dead_code)]
+
 use gloo::net::http::Request;
-use serde_json::Value;
 use yew::platform::spawn_local;
 use serde::de::DeserializeOwned;
 use anyhow::Error;

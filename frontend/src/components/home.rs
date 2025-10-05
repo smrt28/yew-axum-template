@@ -1,11 +1,17 @@
-use yew::{function_component, html, use_effect_with, use_reducer, use_state, Html, Properties, UseStateHandle};
+use yew::{function_component, html,
+          use_effect_with,
+          //use_reducer,
+          use_state,
+          Html,
+          Properties,
+          UseStateHandle};
 use wasm_bindgen_futures::spawn_local;
 use log::info;
 use gloo_timers::future::TimeoutFuture;
 
 use crate::components::login::*;
-use crate::components::chat::*;
-use crate::components::simcalendar::*;
+//use crate::components::chat::*;
+//use crate::components::simcalendar::*;
 
 #[derive(Properties, PartialEq)]
 pub struct HomeProps {
@@ -13,14 +19,15 @@ pub struct HomeProps {
 }
 
 #[function_component(Home)]
-pub fn home(props: &HomeProps) -> Html {
+pub fn home(_props: &HomeProps) -> Html {
     let counter: UseStateHandle<i32> = use_state(|| 0);
     let counter_to_increment = counter.clone();
 
+    /*
     let chat_state1 = use_reducer(ChatState::default);
     let chat_state2 = use_reducer(ChatState::default);
     let chat_state3 = use_reducer(ChatState::default);
-
+*/
     use_effect_with(*counter, move |_| {
         spawn_local(async move {
             TimeoutFuture::new(1000).await;
@@ -30,7 +37,7 @@ pub fn home(props: &HomeProps) -> Html {
     });
 
 
-    let sim_calendar_state = use_reducer(SimCalendarState::default);
+  //  let sim_calendar_state = use_reducer(SimCalendarState::default);
 
     html! {
         <div class="">

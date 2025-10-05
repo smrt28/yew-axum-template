@@ -1,19 +1,29 @@
-use std::slice::SliceIndex;
+//use std::slice::SliceIndex;
 use log::info;
-use web_sys::{HtmlInputElement, HtmlElement};
-use gloo::net::http::Request;
-use gloo_storage::SessionStorage;
-use gloo_timers::callback::Timeout;
-use serde::Serialize;
-use serde_json::json;
-use yew::{functional::{
-    UseReducerHandle
-}, function_component,
-          html, use_effect_with, use_state, Html, Properties,
-          UseStateHandle, Reducible, Callback, use_node_ref, props, use_state_eq, hook
+use web_sys::{
+    HtmlInputElement,
+//    HtmlElement
+};
+//use gloo::net::http::Request;
+//use gloo_storage::SessionStorage;
+//use gloo_timers::callback::Timeout;
+//use serde::Serialize;
+//use serde_json::json;
+use yew::{function_component,
+          html,
+          //use_effect_with,
+          use_state,
+          Html,
+          Properties,
+          //UseStateHandle,
+          //Reducible,
+          Callback,
+          use_node_ref,
+          //props,
+          //use_state_eq,
+          //hook
 };
 use wasm_bindgen::JsCast;
-use yew::platform::spawn_local;
 use crate::fetch::*;
 use shared::sessionconfig::SessionConfig;
 use shared::requests::LoginRegisterRequest;
@@ -23,14 +33,13 @@ pub struct LoginProps {
 
 }
 
-
 #[derive(serde::Deserialize, Debug)]
 struct LoginResponse {
-    status: String,
+    _status: String,
 }
 
 #[function_component(Login)]
-pub fn chat(props: &LoginProps) -> Html {
+pub fn chat(_props: &LoginProps) -> Html {
     let is_register = use_state(|| false);
     let pw1 = use_node_ref();
     let pw2 = use_node_ref();

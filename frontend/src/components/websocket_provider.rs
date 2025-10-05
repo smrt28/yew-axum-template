@@ -1,10 +1,11 @@
+#![allow(dead_code)]
 use yew::prelude::*;
 use web_sys::{WebSocket, MessageEvent, CloseEvent};
 use wasm_bindgen::{prelude::*, JsCast};
 use wasm_bindgen_futures::spawn_local;
 use log::info;
 use std::collections::HashMap;
-use std::rc::Rc;
+//use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct WebSocketContext {

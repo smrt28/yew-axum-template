@@ -1,14 +1,26 @@
+#![allow(dead_code)]
+
 use yew::{functional::{
     UseReducerHandle
-}, function_component, html, use_effect_with, use_state, Html, Properties, UseStateHandle, Reducible, Callback, use_node_ref};
-use wasm_bindgen_futures::spawn_local;
+}, function_component,
+          html,
+          //use_effect_with,
+          //use_state,
+          Html,
+          Properties,
+          //UseStateHandle,
+          Reducible,
+          Callback,
+//          use_node_ref
+};
+//use wasm_bindgen_futures::spawn_local;
 use log::info;
-use gloo_timers::future::TimeoutFuture;
+//use gloo_timers::future::TimeoutFuture;
 use std::rc::Rc;
-use std::borrow::BorrowMut;
-use serde_json::Number;
+//use std::borrow::BorrowMut;
+//use serde_json::Number;
 use web_sys::js_sys;
-use crate::components::chat::ChatAction;
+//use crate::components::chat::ChatAction;
 use crate::components::simcalendar::SimCalendarAction::DayClicked;
 
 #[derive(Clone, PartialEq)]
@@ -28,9 +40,9 @@ impl Default for SimCalendarState {
     }
 }
 
-struct CalendarAction {
-    index: usize,
-    action_code: i32,
+pub struct CalendarAction {
+    pub index: usize,
+    pub action_code: i32,
 }
 
 pub enum SimCalendarAction {
