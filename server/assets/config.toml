@@ -1,4 +1,5 @@
 root = "/home/smrt/w/yew-axum-template/"
+invitation_code = "oslo"
 
 [redis]
 uri="redis://127.0.0.1/"

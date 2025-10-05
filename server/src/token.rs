@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::Result;
 use crate::app_error::AppError;
 
 pub const TOKEN_LENGTH: usize = 20;

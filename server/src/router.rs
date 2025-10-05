@@ -7,7 +7,7 @@ use axum::{
     extract::{State, FromRef},
     Router, Json,
     extract::ws::{WebSocketUpgrade, WebSocket},
-    response::{IntoResponse, Response, Redirect},
+    response::{Response, Redirect},
 };
 use tokio::{net::TcpListener};
 use std::net::SocketAddr;
@@ -18,8 +18,11 @@ use tower::{ServiceBuilder};
 use tower_http::services::{ServeDir, ServeFile};
 use crate::app_error::AppError;
 use redis::AsyncCommands;
-use reqwest::redirect;
-use tracing_subscriber::registry::Data;
+use shared::sessionconfig::SessionConfig;
+use shared::requests::LoginRegisterRequest as LoginRequest;
+//use reqwest::redirect;
+//use tracing_subscriber::registry::Data;
+
 
 #[derive(Clone)]
 pub struct ApiState {
@@ -27,6 +30,7 @@ pub struct ApiState {
     
    #[allow(dead_code)]
    http: reqwest::Client,
+   config: Config
 }
 
 impl ApiState {
@@ -48,6 +52,7 @@ impl AppState {
     fn new(config: Config) -> Result<Self, AppError> {
         Ok(Self {
             api_state: ApiState {
+                config: config.clone(),
                 redis: redis::Client::open(config.redis.uri)?,
                 http: reqwest::ClientBuilder::new()
                     .pool_max_idle_per_host(config.http.max_clients_count)
@@ -56,9 +61,6 @@ impl AppState {
         })
     }
 }
-
-
-
 
 pub async fn run_server(config: &Config) -> Result<(), AppError> {
     let app_state = AppState::new(config.clone())?;
@@ -73,6 +75,9 @@ pub async fn run_server(config: &Config) -> Result<(), AppError> {
         .route("/version", get(version))
         .route("/ws", any(handler))
         .route("/login", post(login))
+        .route("/register", post(register))
+        .route("/config", get(session_config))
+
     ;
 
     info!("Starting server on port {}", config.http.port);
@@ -126,21 +131,53 @@ pub struct Version {
 #[derive(serde::Serialize)]
 pub struct LoginStatus {
     pub status: String,
-
-}
-#[derive(serde::Deserialize, Debug)]
-pub struct LoginRequest {
-    pub username: String,
-    pub password: String,
+    pub message: Option<String>,
 }
 
-pub async fn login(State(state): State<ApiState>,
+impl LoginStatus {
+    fn new(status: &str) -> Self {
+        Self {
+            status: status.to_string(),
+            message: None,
+        }
+    }
+
+    fn with_message(status: &str, message: &str) -> Self {
+        Self {
+            status: status.to_string(),
+            message: Some(message.to_string()),
+        }
+    }
+}
+
+pub async fn session_config(State(state): State<ApiState>)
+    -> Result<Json<SessionConfig>, AppError>{
+    let mut c = SessionConfig::default();
+    c.need_invitation = state.config.invitation_code.is_some();
+    Ok(Json(c))
+}
+
+
+pub async fn register(State(state): State<ApiState>,
                    Json(payload): Json<LoginRequest>,) -> Result<Json<LoginStatus>, AppError> {
-    info!("Login");
+    info!("Reg - {:?}", payload);
+    if let Some(code) = state.config.invitation_code {
+        if let Some(pl_code) = payload.invitation_code {
+            if pl_code != code {
+                return Ok(Json(LoginStatus::with_message("Error",
+                                                         "Invalid invitation code")));
+            }
+        } else {
+            return Ok(Json(LoginStatus::with_message("Error", "Invitation code is required")));
+        }
+    }
+    Ok(Json(LoginStatus::new("OK")))
+}
+
+pub async fn login(State(_state): State<ApiState>,
+                   Json(payload): Json<LoginRequest>,) -> Result<Json<LoginStatus>, AppError> {
     info!("Login - username: {}, password: {}", payload.username, payload.password);
-    Ok(Json(LoginStatus {
-        status: "OK".to_string(),
-    }))
+    Ok(Json(LoginStatus::new("OK")))
 }
 
 pub async fn version(State(state): State<ApiState>) -> Result<Json<Version>, AppError> {
@@ -180,3 +217,4 @@ async fn handle_socket(mut socket: WebSocket) {
         }
     }
 }
+

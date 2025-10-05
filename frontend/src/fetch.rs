@@ -3,6 +3,7 @@ use serde_json::Value;
 use yew::platform::spawn_local;
 use serde::de::DeserializeOwned;
 use anyhow::Error;
+use serde::Serialize;
 
 enum RequestType {
     GET,
@@ -24,21 +25,21 @@ pub enum Status {
 
 #[derive(Debug)]
 pub struct FetchResponse<T> {
-    pub data: Option<T>,
+    pub payload: Option<T>,
     pub status: Status,
 }
 
 impl<T> FetchResponse<T> {
     pub fn empty(status: Status) -> Self {
         Self {
-            data: None,
+            payload: None,
             status,
         }
     }
 
     pub fn error(err: &str) -> Self {
         Self {
-            data: None,
+            payload: None,
             status: Status::Error(err.into()),
         }
     }
@@ -53,13 +54,21 @@ impl Fetch {
         }
     }
 
-    pub fn data(mut self, data: &Value) -> Self {
-        self.data = Some(data.to_string());
+    pub fn data<D>(mut self, data: &D) -> Self
+    where
+        D: Serialize,
+    {
+        self.data = Some(serde_json::to_string(data).unwrap());
         self
     }
 
     pub fn post(mut self) -> Self {
         self.request_type = RequestType::POST;
+        self
+    }
+
+    pub fn get(mut self) -> Self {
+        self.request_type = RequestType::GET;
         self
     }
 
@@ -88,7 +97,7 @@ impl Fetch {
         let text = resp.text().await?;
 
         Ok(FetchResponse {
-            data: Some(serde_json::from_str::<T>(&text)?),
+            payload: Some(serde_json::from_str::<T>(&text)?),
             status: Status::OK,
         })
     }

@@ -2,7 +2,9 @@ use std::slice::SliceIndex;
 use log::info;
 use web_sys::{HtmlInputElement, HtmlElement};
 use gloo::net::http::Request;
+use gloo_storage::SessionStorage;
 use gloo_timers::callback::Timeout;
+use serde::Serialize;
 use serde_json::json;
 use yew::{functional::{
     UseReducerHandle
@@ -13,6 +15,8 @@ use yew::{functional::{
 use wasm_bindgen::JsCast;
 use yew::platform::spawn_local;
 use crate::fetch::*;
+use shared::sessionconfig::SessionConfig;
+use shared::requests::LoginRegisterRequest;
 
 #[derive(Properties, PartialEq)]
 pub struct LoginProps {
@@ -25,34 +29,49 @@ struct LoginResponse {
     status: String,
 }
 
-
 #[function_component(Login)]
 pub fn chat(props: &LoginProps) -> Html {
     let is_register = use_state(|| false);
     let pw1 = use_node_ref();
     let pw2 = use_node_ref();
+    let invitation_code = use_node_ref();
     let error_message = use_state(|| String::new());
     let username = use_node_ref();
+    let need_invitation_code = use_state(|| false);
 
     let on_change = {
         let is_register = is_register.clone();
         let error_message = error_message.clone();
+        let need_invitation_code = need_invitation_code.clone();
         Callback::from(move |event: web_sys::Event| {
-            let target = event.target().unwrap();
-            let input = target.unchecked_into::<HtmlInputElement>();
-            let is_checked = input.checked();
-            is_register.set(is_checked);
-            error_message.set(String::new());
-            info!("Register checkbox: {}", is_checked);
-
+            let is_register = is_register.clone();
+            let error_message = error_message.clone();
+            let need_invitation_code = need_invitation_code.clone();
+            let event = event.clone();
+            Fetch::new()
+                .get()
+                .url("/config")
+                .fetch(|resp: FetchResponse<SessionConfig>| async move {
+                    if let Some(c) = resp.payload {
+                        need_invitation_code.set(c.need_invitation);
+                        let target = event.target().unwrap();
+                        let input = target.unchecked_into::<HtmlInputElement>();
+                        let is_checked = input.checked();
+                        is_register.set(is_checked);
+                        error_message.set(String::new());
+                        info!("Register checkbox: {}", is_checked);
+                    }
+                });
         })
     };
 
     let on_register_or_login = {
         let pw1 = pw1.clone();
         let pw2 = pw2.clone();
+        let invitation_code = invitation_code.clone();
         let username = username.clone();
         let error_message = error_message.clone();
+        let need_invitation_code = need_invitation_code.clone();
 
         let is_register = is_register.clone();
         Callback::from(move |_| {
@@ -70,18 +89,33 @@ pub fn chat(props: &LoginProps) -> Html {
                     error_message.set("Password must be at least 4 characters".into());
                     return
                 }
-
             }
 
             let login_name = username.cast::<HtmlInputElement>().unwrap().value();
 
+            let login_uri = if *is_register { "/register" } else { "/login" };
+            
+            let mut invitation_code_value: Option<String> = None;
+            
+            if *need_invitation_code {
+                let s = invitation_code.cast::<HtmlInputElement>().unwrap().value();
+                if s.is_empty() {
+                    error_message.set("Invitation code is empty".into());
+                    return;
+                }
+                invitation_code_value = Some(invitation_code.cast::<HtmlInputElement>().unwrap().value());             
+            }
+
+            let login_request = LoginRegisterRequest {
+                username: login_name.clone(),
+                password: pw1_value.clone(),
+                invitation_code: invitation_code_value,
+            };
+
             Fetch::new()
                 .post()
-                .url("/login")
-                .data(&json!({
-                        "username": login_name,
-                        "password": pw1_value,
-                    }))
+                .url(login_uri)
+                .data(&login_request)
                 .fetch(|resp: FetchResponse<LoginResponse>| async move {
                     info!("Login response: {:?}", resp);
                 });
@@ -100,13 +134,12 @@ pub fn chat(props: &LoginProps) -> Html {
     html! {
         <div class="login-container">
         <div class="registration">
-                if *is_register {
+                if *is_register && *need_invitation_code {
                      <div class="invitation-code">
                          {"Invitation code: "}
-                         <input type="text" class="register-invitation"/>
+                         <input ref={invitation_code} type="text" class="register-invitation"/>
                      </div>
                 }
-
                 <div class="registration-container">
                     <input id="checkbox" type="checkbox" onchange={on_change}/>
                     <label for="checkbox">{"Register"}</label>

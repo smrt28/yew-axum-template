@@ -6,6 +6,16 @@ use std::path::PathBuf;
 use serde::{Deserialize, Deserializer};
 use crate::app_error::AppError;
 
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct Config {
+    pub root: Option<String>,
+    pub http: Http,
+    pub redis: RedisConfig,
+    pub invitation_code: Option<String>,
+}
+
+
 fn default_max_clients_count() -> usize {  16 }
 
 #[derive(Debug, Clone)]
@@ -81,12 +91,7 @@ pub struct Http {
     pub mappings: Option<Vec<Mapping>>,
 }
 
-#[derive(Deserialize, Debug, Clone)]
-pub struct Config {
-    pub root: Option<String>,
-    pub http: Http,
-    pub redis: RedisConfig,
-}
+
 
 impl fmt::Display for Mapping {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 
-#shared = { path = "../shared" }
+shared = { path = "../shared" }
 
 anyhow = "1"
 reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
