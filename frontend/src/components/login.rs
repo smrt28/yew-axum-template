@@ -26,19 +26,10 @@ use yew::{function_component,
 use wasm_bindgen::JsCast;
 use crate::fetch::*;
 use shared::sessionconfig::SessionConfig;
-use shared::requests::LoginRegisterRequest;
+use shared::requests::{LoginRegisterRequest, RegisterResponse, ResponseStatus};
 
 #[derive(Properties, PartialEq)]
-pub struct LoginProps {
-
-}
-
-
-#[derive(serde::Deserialize, Debug)]
-struct LoginResponse {
-    status: String,
-    message: Option<String>,
-}
+pub struct LoginProps {}
 
 #[function_component(Login)]
 pub fn chat(_props: &LoginProps) -> Html {
@@ -87,7 +78,7 @@ pub fn chat(_props: &LoginProps) -> Html {
         let is_register = is_register.clone();
         Callback::from(move |_| {
             let pw1_value = pw1.cast::<HtmlInputElement>().unwrap().value();
-
+            let error_message = error_message.clone();
             if *is_register {
                 let pw2_value = pw2.cast::<HtmlInputElement>().unwrap().value();
                 info!("Register {} {}", pw1_value, pw2_value);
@@ -127,8 +118,9 @@ pub fn chat(_props: &LoginProps) -> Html {
                 .post()
                 .url(login_uri)
                 .data(&login_request)
-                .fetch(|resp: FetchResponse<LoginResponse>| async move {
-                    info!("Login response: {:?}", resp);
+                .fetch(|resp: FetchResponse<RegisterResponse>| async move {
+                    error_message.set(resp.get_message().unwrap_or_else(|| "".into()));
+                    info!("Login response: {:?}", resp.is_ok());
                 });
         })
     };

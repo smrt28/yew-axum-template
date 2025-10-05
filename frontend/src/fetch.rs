@@ -4,6 +4,7 @@ use yew::platform::spawn_local;
 use serde::de::DeserializeOwned;
 use anyhow::Error;
 use serde::Serialize;
+use shared::requests::ResponseStatus;
 
 enum RequestType {
     GET,
@@ -24,9 +25,30 @@ pub enum Status {
 }
 
 #[derive(Debug)]
-pub struct FetchResponse<T> {
+pub struct FetchResponse<T>
+{
     pub payload: Option<T>,
     pub status: Status,
+}
+
+
+impl <T>  ResponseStatus for FetchResponse<T>
+where T: ResponseStatus
+{
+    fn is_ok(&self) -> bool {
+        if let Some(pl) = &self.payload {
+            return pl.is_ok();
+        }
+        false
+    }
+
+    fn get_message(&self) -> Option<String> {
+        if let Some(pl) = &self.payload {
+            return pl.get_message();
+        }
+        None
+    }
+
 }
 
 impl<T> FetchResponse<T> {

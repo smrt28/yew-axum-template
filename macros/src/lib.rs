@@ -14,6 +14,15 @@ pub fn derive_json_response(input: TokenStream) -> TokenStream {
                 axum::Json(self).into_response()
             }
         }
+        
+        impl ResponseStatus for #name {
+            fn is_ok(&self) -> bool {
+                self.status == "ok"
+            }
+            fn get_message(&self) -> Option<String> {
+                self.message.clone()
+            }
+        }
     };
 
     TokenStream::from(expanded)

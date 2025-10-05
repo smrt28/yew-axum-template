@@ -1,6 +1,11 @@
 use serde::{Deserialize, Serialize};
 use macros::AutoJIntoResponse;
 
+pub trait ResponseStatus {
+    fn is_ok(&self) -> bool;
+    fn get_message(&self) -> Option<String>;
+}
+
 #[derive(Serialize, Debug, Deserialize)]
 pub struct LoginRegisterRequest {
     pub username: String,
@@ -14,6 +19,7 @@ pub struct RegisterRequest {
     pub password: String,
     pub invitation_code: Option<String>,
 }
+
 
 #[derive(Serialize, Debug, Deserialize, AutoJIntoResponse)]
 pub struct RegisterResponse {
