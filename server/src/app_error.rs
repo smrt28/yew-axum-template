@@ -32,6 +32,9 @@ pub enum AppError {
 
     #[error("Permission denied")]
     PermissionDenied(String),
+    
+    #[error("Shared error")]
+    SharedError(#[from] shared::shared_error::SharedError),
 }
 
 impl IntoResponse for AppError {
@@ -54,13 +57,13 @@ impl IntoResponse for AppError {
                 message = Some(s.clone());
                 (StatusCode::FORBIDDEN, 9)
             },
+            AppError::SharedError(_) => (StatusCode::BAD_REQUEST, 10),
         };
 
         let mut body = serde_json::json!({
             "status": "error",
             "code": code,
             "uuid": uuid.to_string(),
-
         });
 
         if let Some(msg) = message {

@@ -19,7 +19,7 @@ use tower_http::services::{ServeDir, ServeFile};
 use crate::app_error::AppError;
 use redis::AsyncCommands;
 use shared::sessionconfig::SessionConfig;
-use shared::requests::{LoginRegisterRequest as LoginRequest, RegisterRequest, RegisterResponse};
+use shared::requests::{LoginRegisterRequest as LoginRequest, RegisterRequest, RegisterResponse, SanityCheck};
 //use reqwest::redirect;
 //use tracing_subscriber::registry::Data;
 
@@ -154,6 +154,7 @@ pub async fn session_config(State(state): State<ApiState>)
 pub async fn register(State(state): State<ApiState>,
                    Json(payload): Json<RegisterRequest>,) -> Result<RegisterResponse, AppError> {
     info!("Reg - {:?}", payload);
+    payload.check()?;
     if let Some(code) = state.config.invitation_code {
         if let Some(pl_code) = payload.invitation_code {
             if pl_code != code {

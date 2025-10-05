@@ -1,9 +1,14 @@
 use serde::{Deserialize, Serialize};
 use macros::AutoJIntoResponse;
+use crate::shared_error::SharedError;
 
 pub trait ResponseStatus {
     fn is_ok(&self) -> bool;
     fn get_message(&self) -> Option<String>;
+}
+
+pub trait SanityCheck {
+    fn check(&self) -> Result<(), SharedError>;
 }
 
 #[derive(Serialize, Debug, Deserialize)]
@@ -18,6 +23,26 @@ pub struct RegisterRequest {
     pub username: String,
     pub password: String,
     pub invitation_code: Option<String>,
+}
+
+impl SanityCheck for RegisterRequest {
+    fn check(&self) -> Result<(), SharedError> {
+        let max_len = 20;
+        if self.username.len() > max_len || self.username.is_empty() {
+            return Err(SharedError::Consistency);
+        }
+        
+        if self.password.len() > max_len || self.password.is_empty() {
+            return Err(SharedError::Consistency);
+        }
+        
+        if let Some(code) = &self.invitation_code {
+            if code.len() > max_len {
+                return Err(SharedError::Consistency);
+            }       
+        }
+        Ok(())
+    }
 }
 
 

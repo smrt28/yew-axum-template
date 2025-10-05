@@ -2057,6 +2057,7 @@ dependencies = [
  "axum",
  "macros",
  "serde",
+ "thiserror 2.0.16",
 ]
 
 [[package]]
