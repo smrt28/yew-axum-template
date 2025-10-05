@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use macros::AutoJIntoResponse;
 
 #[derive(Serialize, Debug, Deserialize)]
 pub struct LoginRegisterRequest {
@@ -6,6 +7,20 @@ pub struct LoginRegisterRequest {
     pub password: String,
     pub invitation_code: Option<String>,
 }
+
+#[derive(Serialize, Debug, Deserialize)]
+pub struct RegisterRequest {
+    pub username: String,
+    pub password: String,
+    pub invitation_code: Option<String>,
+}
+
+#[derive(Serialize, Debug, Deserialize, AutoJIntoResponse)]
+pub struct RegisterResponse {
+    pub status: String,
+    pub message: Option<String>,
+}
+
 
 #[derive(Serialize, Debug, Deserialize)]
 pub struct ServerResponse<P>
@@ -38,10 +53,14 @@ impl<P> ServerResponse<P>
     }
 }
 
+
+
+
 #[cfg(feature = "server")]
 mod server_impl {
-    use axum::response::{IntoResponse, Response, Json};
-    use axum::http::StatusCode;
+
+use axum::response::{IntoResponse, Response, Json};
+use axum::http::StatusCode;
 use super::*;
 
 impl<P> IntoResponse for ServerResponse<P>
@@ -57,4 +76,5 @@ where
         (status_code, Json(self)).into_response()
     }
 }
-}
+
+} // mod server_impl

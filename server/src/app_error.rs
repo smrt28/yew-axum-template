@@ -29,13 +29,16 @@ pub enum AppError {
     
     #[error("token error: {0}")]
     TokenError(String),
+
+    #[error("Permission denied")]
+    PermissionDenied(String),
 }
 
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         let uuid = Uuid::new_v4();
-        let message: String = self.to_string();
-        info!("error occurred {}: {}", uuid, message);
+        let mut message: Option<String> = None;
+        info!("error occurred {}: {}", uuid, self.to_string());
         let (http_status, code) = match &self {
             AppError::JsonError(_)        => (StatusCode::INTERNAL_SERVER_ERROR, 1),
             AppError::RedisError(_)       => (StatusCode::BAD_GATEWAY,             2),
@@ -47,13 +50,23 @@ impl IntoResponse for AppError {
             AppError::IOError(e) if e.kind() == std::io::ErrorKind::NotFound  => (StatusCode::NOT_FOUND, 7),
             AppError::IOError(_)          => (StatusCode::INTERNAL_SERVER_ERROR,   7),
             AppError::TokenError(_) => (StatusCode::BAD_REQUEST,             8),
+            AppError::PermissionDenied(s) => {
+                message = Some(s.clone());
+                (StatusCode::FORBIDDEN, 9)
+            },
         };
 
-        let body = serde_json::json!({
+        let mut body = serde_json::json!({
             "status": "error",
             "code": code,
             "uuid": uuid.to_string(),
+
         });
+
+        if let Some(msg) = message {
+            body["message"] = serde_json::json!(msg);
+        }
+
         (http_status, Json(body)).into_response()
     }
 }

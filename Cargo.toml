@@ -1,6 +1,6 @@
 
 [workspace]
-members = ["server", "frontend", "shared"]
+members = ["server", "frontend", "shared", "macros"]
 resolver = "2"
 default-members = ["server"]
 

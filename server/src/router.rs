@@ -19,7 +19,7 @@ use tower_http::services::{ServeDir, ServeFile};
 use crate::app_error::AppError;
 use redis::AsyncCommands;
 use shared::sessionconfig::SessionConfig;
-use shared::requests::LoginRegisterRequest as LoginRequest;
+use shared::requests::{LoginRegisterRequest as LoginRequest, RegisterRequest, RegisterResponse};
 //use reqwest::redirect;
 //use tracing_subscriber::registry::Data;
 
@@ -141,13 +141,6 @@ impl LoginStatus {
             message: None,
         }
     }
-
-    fn with_message(status: &str, message: &str) -> Self {
-        Self {
-            status: status.to_string(),
-            message: Some(message.to_string()),
-        }
-    }
 }
 
 pub async fn session_config(State(state): State<ApiState>)
@@ -159,19 +152,21 @@ pub async fn session_config(State(state): State<ApiState>)
 
 
 pub async fn register(State(state): State<ApiState>,
-                   Json(payload): Json<LoginRequest>,) -> Result<Json<LoginStatus>, AppError> {
+                   Json(payload): Json<RegisterRequest>,) -> Result<RegisterResponse, AppError> {
     info!("Reg - {:?}", payload);
     if let Some(code) = state.config.invitation_code {
         if let Some(pl_code) = payload.invitation_code {
             if pl_code != code {
-                return Ok(Json(LoginStatus::with_message("Error",
-                                                         "Invalid invitation code")));
+                return Err(AppError::PermissionDenied("Invalid invitation code".into()));
             }
         } else {
-            return Ok(Json(LoginStatus::with_message("Error", "Invitation code is required")));
+            return Err(AppError::PermissionDenied("Invitation code is required".into()));
         }
     }
-    Ok(Json(LoginStatus::new("OK")))
+    Ok(RegisterResponse{
+        status: "ok".into(),
+        message: None,
+    })
 }
 
 pub async fn login(State(_state): State<ApiState>,

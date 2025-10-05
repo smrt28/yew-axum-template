@@ -33,9 +33,11 @@ pub struct LoginProps {
 
 }
 
+
 #[derive(serde::Deserialize, Debug)]
 struct LoginResponse {
-    _status: String,
+    status: String,
+    message: Option<String>,
 }
 
 #[function_component(Login)]
