@@ -8,6 +8,7 @@ macros = { path = "../macros" }
 axum = { version = "0.8.6", optional = true }
 serde = { version = "1.0.228", features = ["derive"] }
 thiserror = "2.0.16"
+garde = { version = "0.22.0", features = ["derive"] }
 
 
 [features]

@@ -1,6 +1,6 @@
 
 
-use crate::config::Config;
+use crate::config::{Config, Storage};
 use axum::{
     http::Uri,
     routing::{get, post, any},
@@ -12,24 +12,31 @@ use axum::{
 use tokio::{net::TcpListener};
 use std::net::SocketAddr;
 use anyhow::Context;
-
+use garde::Validate;
 use log::info;
 use tower::{ServiceBuilder};
 use tower_http::services::{ServeDir, ServeFile};
 use crate::app_error::AppError;
 use redis::AsyncCommands;
 use shared::sessionconfig::SessionConfig;
-use shared::requests::{LoginRegisterRequest as LoginRequest, RegisterRequest, RegisterResponse, SanityCheck};
+use shared::requests::{LoginRegisterRequest as LoginRequest,
+                       RegisterRequest,
+                       RegisterResponse};
+
+use crate::db::Storage as AppStorage;
 //use reqwest::redirect;
 //use tracing_subscriber::registry::Data;
+
 
 
 #[derive(Clone)]
 pub struct ApiState {
    redis: redis::Client,
+   storage: AppStorage,
     
    #[allow(dead_code)]
    http: reqwest::Client,
+
    config: Config
 }
 
@@ -52,6 +59,7 @@ impl AppState {
     fn new(config: Config) -> Result<Self, AppError> {
         Ok(Self {
             api_state: ApiState {
+                storage: AppStorage::new(&config)?,
                 config: config.clone(),
                 redis: redis::Client::open(config.redis.uri)?,
                 http: reqwest::ClientBuilder::new()
@@ -151,19 +159,22 @@ pub async fn session_config(State(state): State<ApiState>)
 }
 
 
-pub async fn register(State(state): State<ApiState>,
+pub async fn register(State(mut state): State<ApiState>,
                    Json(payload): Json<RegisterRequest>,) -> Result<RegisterResponse, AppError> {
     info!("Reg - {:?}", payload);
-    payload.check()?;
+    payload.validate()?;
     if let Some(code) = state.config.invitation_code {
-        if let Some(pl_code) = payload.invitation_code {
-            if pl_code != code {
+        if let Some(ref pl_code) = payload.invitation_code {
+            if *pl_code != code {
                 return Err(AppError::PermissionDenied("Invalid invitation code".into()));
             }
         } else {
             return Err(AppError::PermissionDenied("Invitation code is required".into()));
         }
     }
+
+    state.storage.register_user(&payload);
+
     Ok(RegisterResponse{
         status: "ok".into(),
         message: None,

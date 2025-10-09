@@ -13,8 +13,13 @@ pub struct Config {
     pub http: Http,
     pub redis: RedisConfig,
     pub invitation_code: Option<String>,
+    pub storage: Storage,
 }
 
+#[derive(Deserialize, Debug, Clone)]
+pub struct Storage {
+    pub path: RelativePath,
+}
 
 fn default_max_clients_count() -> usize {  16 }
 

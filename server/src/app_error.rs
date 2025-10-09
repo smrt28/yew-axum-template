@@ -35,6 +35,12 @@ pub enum AppError {
     
     #[error("Shared error")]
     SharedError(#[from] shared::shared_error::SharedError),
+
+    #[error("validation error: {0}")]
+    ValidationError(#[from] garde::Report),
+    
+    #[error("storage: {0}")]
+    StorageError(#[from] sled::Error),
 }
 
 impl IntoResponse for AppError {
@@ -58,6 +64,11 @@ impl IntoResponse for AppError {
                 (StatusCode::FORBIDDEN, 9)
             },
             AppError::SharedError(_) => (StatusCode::BAD_REQUEST, 10),
+            AppError::ValidationError(_) => {
+                message = Some("validation failed".into());
+                (StatusCode::BAD_REQUEST, 11)
+            },
+            AppError::StorageError(_) => (StatusCode::INTERNAL_SERVER_ERROR, 12),
         };
 
         let mut body = serde_json::json!({
