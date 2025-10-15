@@ -2,7 +2,7 @@ mod router;
 mod config;
 mod app_error;
 mod token;
-mod db;
+mod model;
 /*
 use boa_engine::{
     Context, JsResult, JsValue, Source, js_string,

@@ -41,6 +41,15 @@ pub enum AppError {
     
     #[error("storage: {0}")]
     StorageError(#[from] sled::Error),
+
+    #[error("encode error: {0:?}")]
+    EncodeError(#[from] bincode::error::EncodeError),
+
+    #[error("decode error: {0:?}")]
+    DecodeError(#[from] bincode::error::DecodeError),
+
+    #[error("Not found")]
+    NotFound,
 }
 
 impl IntoResponse for AppError {
@@ -64,11 +73,15 @@ impl IntoResponse for AppError {
                 (StatusCode::FORBIDDEN, 9)
             },
             AppError::SharedError(_) => (StatusCode::BAD_REQUEST, 10),
-            AppError::ValidationError(_) => {
+            AppError::ValidationError(e) => {
+                info!("validation error: {:?}", e);
                 message = Some("validation failed".into());
                 (StatusCode::BAD_REQUEST, 11)
             },
             AppError::StorageError(_) => (StatusCode::INTERNAL_SERVER_ERROR, 12),
+            AppError::NotFound => (StatusCode::NOT_FOUND, 13),
+
+            _ => (StatusCode::INTERNAL_SERVER_ERROR, 1013),
         };
 
         let mut body = serde_json::json!({

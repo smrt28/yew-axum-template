@@ -1,6 +1,6 @@
 
 
-use crate::config::{Config, Storage};
+use crate::config::{Config};
 use axum::{
     http::Uri,
     routing::{get, post, any},
@@ -22,11 +22,7 @@ use shared::sessionconfig::SessionConfig;
 use shared::requests::{LoginRegisterRequest as LoginRequest,
                        RegisterRequest,
                        RegisterResponse};
-
-use crate::db::Storage as AppStorage;
-//use reqwest::redirect;
-//use tracing_subscriber::registry::Data;
-
+use crate::model::db::Storage as AppStorage;
 
 
 #[derive(Clone)]
@@ -173,7 +169,7 @@ pub async fn register(State(mut state): State<ApiState>,
         }
     }
 
-    state.storage.register_user(&payload);
+    state.storage.register_user(&payload)?;
 
     Ok(RegisterResponse{
         status: "ok".into(),

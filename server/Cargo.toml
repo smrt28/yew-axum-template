@@ -33,4 +33,5 @@ redis = { version = "0.32.5", features = ["tokio-comp"] }
 uuid = { version = "1.18.1", features = ["v4"] }
 sled = "0.34.7"
 garde = "0.22.0"
+bincode = { version = "2.0.1", features = ["serde"] }
 #boa_engine = "0.20.0"

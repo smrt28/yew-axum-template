@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
 use macros::AutoJIntoResponse;
-use crate::shared_error::SharedError;
-use garde::{Validate, Valid};
+use garde::{Validate};
 
 pub trait ResponseStatus {
     fn is_ok(&self) -> bool;
