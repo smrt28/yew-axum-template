@@ -169,7 +169,7 @@ pub async fn register(State(mut state): State<ApiState>,
         }
     }
 
-    state.storage.register_user(&payload)?;
+//    state.storage.register_user(&payload)?;
 
     Ok(RegisterResponse{
         status: "ok".into(),
